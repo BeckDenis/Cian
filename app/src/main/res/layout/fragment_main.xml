@@ -22,7 +22,7 @@
 
     <Button
         android:id="@+id/main_buy_button"
-        style="@style/button"
+        style="@style/Button"
         android:layout_width="0dp"
         android:layout_height="@dimen/button_height"
         android:text="@string/buy"
@@ -34,7 +34,7 @@
 
     <Button
         android:id="@+id/main_rent_button"
-        style="@style/button"
+        style="@style/Button"
         android:layout_width="0dp"
         android:layout_height="@dimen/button_height"
         android:layout_marginStart="8dp"
@@ -47,7 +47,7 @@
     <Button
         android:layout_width="0dp"
         android:layout_height="@dimen/button_height"
-        style="@style/button"
+        style="@style/OutlinedButton"
         app:layout_constraintStart_toStartOf="@id/main_start_guideline"
         app:layout_constraintEnd_toEndOf="@id/main_end_guideline"
         app:layout_constraintTop_toBottomOf="@id/main_buy_button"

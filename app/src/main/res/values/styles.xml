@@ -8,9 +8,11 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="button" parent="Widget.MaterialComponents.Button">
+    <style name="Button" parent="Widget.MaterialComponents.Button">
         <item name="android:textColor">@color/background</item>
     </style>
+
+    <style name="OutlinedButton" parent="Widget.MaterialComponents.Button.OutlinedButton"/>
 
     <style name="Toolbar" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
 </resources>
