@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".main.MainFragment">
+
+    <TextView
+        android:id="@+id/main_logo_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/aclonica"
+        android:text="@string/app_name"
+        android:textColor="@color/colorPrimary"
+        android:textSize="50sp"
+        app:layout_constraintBottom_toTopOf="@id/main_buy_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/main_buy_button"
+        style="@style/button"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/button_height"
+        android:text="@string/buy"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toStartOf="@id/main_rent_button"
+        app:layout_constraintStart_toStartOf="@id/main_start_guideline"
+        app:layout_constraintTop_toBottomOf="@id/main_logo_text"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <Button
+        android:id="@+id/main_rent_button"
+        style="@style/button"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/button_height"
+        android:layout_marginStart="8dp"
+        android:text="@string/rent"
+        app:layout_constraintBottom_toBottomOf="@id/main_buy_button"
+        app:layout_constraintEnd_toEndOf="@id/main_end_guideline"
+        app:layout_constraintStart_toEndOf="@id/main_buy_button"
+        app:layout_constraintTop_toTopOf="@id/main_buy_button" />
+
+    <Button
+        android:layout_width="0dp"
+        android:layout_height="@dimen/button_height"
+        style="@style/button"
+        app:layout_constraintStart_toStartOf="@id/main_start_guideline"
+        app:layout_constraintEnd_toEndOf="@id/main_end_guideline"
+        app:layout_constraintTop_toBottomOf="@id/main_buy_button"
+        android:text="@string/place_an_ad"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/main_start_guideline"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/main_end_guideline"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
