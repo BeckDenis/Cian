@@ -2,19 +2,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/saved"
+        android:id="@id/main_fragment"
+        android:icon="@drawable/ic_saved"
+        android:title="Main"/>
+    <item
+        android:id="@id/saved_fragment"
         android:icon="@drawable/ic_saved"
         android:title="@string/saved"/>
     <item
-        android:id="@+id/messages"
+        android:id="@id/messages_fragment"
         android:icon="@drawable/ic_messages"
         android:title="@string/messages"/>
     <item
-        android:id="@+id/help"
+        android:id="@id/help_fragment"
         android:icon="@drawable/ic_help"
         android:title="@string/help"/>
     <item
-        android:id="@+id/about"
+        android:id="@id/about_fragment"
         android:icon="@drawable/ic_about"
         android:title="@string/about"/>
 </menu>
