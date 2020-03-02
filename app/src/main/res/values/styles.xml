@@ -12,5 +12,5 @@
         <item name="android:textColor">@color/background</item>
     </style>
 
-    <style name="Toolbar" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="Toolbar" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
 </resources>
