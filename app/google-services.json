@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "745902406946",
+    "firebase_url": "https://cian-4ebff.firebaseio.com",
+    "project_id": "cian-4ebff",
+    "storage_bucket": "cian-4ebff.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:745902406946:android:4f6f5c57c044d5692eb97b",
+        "android_client_info": {
+          "package_name": "com.example.cian"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "745902406946-0uul9vpa42hpaacnankgts5llrf0djiu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.cian",
+            "certificate_hash": "6826178fb13c583d404e519b4f90eb4b52b75697"
+          }
+        },
+        {
+          "client_id": "745902406946-ikumefkrs1ebo3qre0j6iid1kjprgfv1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYITGnK355SIczsthWE1OZpQ6yCH7NIvY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "745902406946-ikumefkrs1ebo3qre0j6iid1kjprgfv1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

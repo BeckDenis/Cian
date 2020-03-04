@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/main_fragment"
-        android:name="com.example.cian.main.MainFragment"
+        android:name="com.example.cian.screens.main.MainFragment"
         android:label=" "
         tools:layout="@layout/fragment_main">
         <action
@@ -31,25 +31,33 @@
         <action
             android:id="@+id/action_mainFragment_to_help_fragment"
             app:destination="@id/help_fragment" />
+        <action
+            android:id="@+id/action_main_to_newAd"
+            app:destination="@id/new_ad_fragment" />
     </fragment>
     <fragment
         android:id="@+id/about_fragment"
-        android:name="com.example.cian.about.AboutFragment"
+        android:name="com.example.cian.screens.about.AboutFragment"
         android:label="About"
         tools:layout="@layout/fragment_about" />
     <fragment
         android:id="@+id/help_fragment"
-        android:name="com.example.cian.help.HelpFragment"
+        android:name="com.example.cian.screens.help.HelpFragment"
         android:label="Help"
         tools:layout="@layout/fragment_help" />
     <fragment
         android:id="@+id/messages_fragment"
-        android:name="com.example.cian.messages.MessagesFragment"
+        android:name="com.example.cian.screens.messages.MessagesFragment"
         android:label="Messages"
         tools:layout="@layout/fragment_messages" />
     <fragment
         android:id="@+id/saved_fragment"
-        android:name="com.example.cian.saved.SavedFragment"
+        android:name="com.example.cian.screens.saved.SavedFragment"
         android:label="Saved"
         tools:layout="@layout/fragment_saved" />
+    <fragment
+        android:id="@+id/new_ad_fragment"
+        android:name="com.example.cian.screens.newAd.NewAdFragment"
+        android:label="New Ad"
+        tools:layout="@layout/fragment_new_ad" />
 </navigation>

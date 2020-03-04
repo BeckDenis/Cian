@@ -1,4 +1,4 @@
-package com.example.cian.saved
+package com.example.cian.screens.saved
 
 
 import android.os.Bundle

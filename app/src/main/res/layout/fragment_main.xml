@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    tools:context=".main.MainFragment">
+    tools:context=".screens.main.MainFragment">
 
     <TextView
         android:id="@+id/main_logo_text"
@@ -45,6 +45,7 @@
         app:layout_constraintTop_toTopOf="@id/main_buy_button" />
 
     <Button
+        android:id="@+id/main_place_an_ad_button"
         android:layout_width="0dp"
         android:layout_height="@dimen/button_height"
         style="@style/OutlinedButton"

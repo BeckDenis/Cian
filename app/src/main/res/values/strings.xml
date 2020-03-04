@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">Cian</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="buy">Buy</string>
     <string name="rent">Rent</string>
@@ -10,4 +9,31 @@
     <string name="messages">Messages</string>
     <string name="help">Help</string>
     <string name="about">About</string>
+    <string name="joke1">I was digging in our garden when I found a chest full of gold coins. I was about to run straight home to tell my wife about it, but then I remembered why I was digging in our garden.</string>
+    <string name="joke2">My grandfather says I\'m too reliant on technology. I called him a hypocrite and unplugged his life support.</string>
+    <string name="add_photo">Add photo</string>
+    <string name="choose_housing_type">Choose housing type</string>
+    <string name="select_the_number_of_rooms">Select the number of rooms</string>
+    <string name="short_description">Short description</string>
+    <string name="full_description">Full description</string>
+    <string name="add">add</string>
+    <string name="choose_type_ad">Choose type ad</string>
+    <string name="price">Price</string>
+    <string-array name="type_of_housing">
+        <item>House</item>
+        <item>Apartment</item>
+        <item>Room</item>
+    </string-array>
+    <string-array name="number_of_room">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>5+</item>
+    </string-array>
+    <string-array name="type_ad">
+        <item>Rental</item>
+        <item>Sale</item>
+    </string-array>
 </resources>

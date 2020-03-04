@@ -1,4 +1,4 @@
-package com.example.cian.messages
+package com.example.cian.screens.about
 
 
 import android.os.Bundle
@@ -12,14 +12,14 @@ import com.example.cian.R
 /**
  * A simple [Fragment] subclass.
  */
-class MessagesFragment : Fragment() {
+class AboutFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_messages, container, false)
+        return inflater.inflate(R.layout.fragment_about, container, false)
     }
 
 
