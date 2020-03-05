@@ -16,6 +16,7 @@ import android.widget.Spinner
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import com.example.cian.R
 import com.example.cian.models.Post
 import com.example.cian.models.PostState
@@ -156,11 +157,11 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
 
     private fun sharePost() {
         Log.d(TAG, "sharePost called")
-        val ref = firebase.database.child("posts").push()
+        val ref = firebase.databasePosts().push()
 
-        val key = ref.key ?: "error"
+        viewModel.postId = ref.key ?: "error"
 
-        if (key == "error") {
+        if (viewModel.postId == "error") {
             viewModel.updatePostState(PostState.NOTHING)
             return
         }
@@ -181,10 +182,10 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
 
                 viewModel.imagesUris.value?.forEach { uri ->
                     Log.d(TAG, uri.toString())
-                    firebase.storageImage(key, uri.key.lastPathSegment).putFile(uri.key)
+                    firebase.storageImage(viewModel.postId, uri.key.lastPathSegment).putFile(uri.key)
                         .addOnSuccessListener {
                             Log.d(TAG, "storage success")
-                            downloadImage(uri.key, key)
+                            downloadImage(uri.key, viewModel.postId)
                         }
                         .addOnFailureListener {
                             errorMessage(it, TAG)
@@ -221,7 +222,6 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
             else -> true
         }
 
-
     private fun downloadImage(uri: Uri, key: String) {
         firebase.storageImage(key, uri.lastPathSegment).downloadUrl
             .addOnSuccessListener {
@@ -249,12 +249,9 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
     private fun postUploadedSuccessfully() {
         progress_bar_fab.showView {
             progress_bar.hideView()
-            activity?.onBackPressed()
+            findNavController().navigate(NewAdFragmentDirections.actionNewAdToPostDetail(viewModel.postId))
+            viewModel.clear()
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        viewModel.clear()
-    }
 }

@@ -8,6 +8,8 @@ import com.example.cian.models.PostState
 
 class NewAdViewModel : ViewModel() {
 
+    var postId = ""
+
     private var _postState = MutableLiveData(PostState.NOTHING)
     val postState: LiveData<PostState>
         get() = _postState

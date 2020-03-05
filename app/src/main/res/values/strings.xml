@@ -20,6 +20,9 @@
     <string name="choose_type_ad">Choose type ad</string>
     <string name="price">Price</string>
     <string name="check_fields">Please fill in all fields</string>
+    <string name="type_ad">Type ad</string>
+    <string name="housing_type">housing type</string>
+    <string name="the_number_of_rooms">the number of rooms</string>
     <string-array name="type_of_housing">
         <item>House</item>
         <item>Apartment</item>
