@@ -1,6 +1,5 @@
 package com.example.cian.screens.newAd
 
-
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.net.Uri
@@ -14,8 +13,12 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import android.widget.Toast
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import com.example.cian.R
 import com.example.cian.models.Post
+import com.example.cian.models.PostState
 import com.example.cian.utils.FirebaseHelper
 import com.example.cian.utils.errorMessage
 import com.example.cian.utils.hideView
@@ -31,8 +34,8 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
         val TAG = NewAdFragment::class.java.simpleName
     }
 
-    private var imagesUris = HashMap<Uri, Boolean>()
     private lateinit var firebase: FirebaseHelper
+    private val viewModel by activityViewModels<NewAdViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +56,27 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
         new_ad_type_of_housing.onItemSelectedListener = this
         new_ad_number_of_room.onItemSelectedListener = this
         new_ad_type_ad.onItemSelectedListener = this
+
+        viewModel.imagesUris.observe(viewLifecycleOwner, Observer { imagesUris ->
+            Log.d(TAG, "imagesUris: $imagesUris")
+            if (!imagesUris.isNullOrEmpty() && imagesUris.all { it.value })
+                viewModel.updatePostState(PostState.DONE)
+
+            new_ad_recycler.adapter = NewAdAdapter(imagesUris.map { it.key })
+        })
+
+        viewModel.postState.observe(viewLifecycleOwner, Observer {
+            when (it) {
+                PostState.NOTHING -> progress_bar.hideView()
+                PostState.LOADING -> {
+                    sharePost()
+                    progress_bar.showView {}
+                }
+                PostState.ERROR -> progress_bar.hideView()
+                PostState.DONE -> postUploadedSuccessfully()
+                else -> Log.e(TAG, "postState is null")
+            }
+        })
     }
 
     private fun createAdapter(spinner: Spinner, array: Int) {
@@ -87,18 +111,15 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
 
                 for (i in 0 until totalItemSelected) {
                     val image = images?.getItemAt(i)?.uri ?: return
-                    imagesUris[image] = false
-                    Log.d(TAG, imagesUris.toString())
+                    viewModel.updateImagesUris(image, false)
                 }
             } else {
                 if (data?.data != null) {
                     val image = data.data ?: return
-                    imagesUris[image] = false
+                    viewModel.updateImagesUris(image, false)
                 }
             }
         }
-
-        new_ad_recycler.adapter = NewAdAdapter(imagesUris.map { it.key })
     }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -122,7 +143,12 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
         when (item.itemId) {
             R.id.menu_add -> {
                 Log.d(TAG, "menu clicked")
-                sharePost()
+                when (viewModel.postState.value) {
+                    PostState.NOTHING -> viewModel.updatePostState(PostState.LOADING)
+                    PostState.ERROR -> viewModel.updatePostState(PostState.LOADING)
+                    else -> {
+                    }
+                }
                 true
             }
             else -> false
@@ -131,21 +157,29 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
     private fun sharePost() {
         Log.d(TAG, "sharePost called")
         val ref = firebase.database.child("posts").push()
-        val key = ref.key ?: return
+
+        val key = ref.key ?: "error"
+
+        if (key == "error") {
+            viewModel.updatePostState(PostState.NOTHING)
+            return
+        }
+
         Log.d(TAG, "ref.key not null")
-        progress_bar.showView()
-        val post = Post(
-            shortDescription = new_ad_short_description_input.text.toString(),
-            fullDescription = new_ad_full_description_input.text.toString(),
-            typeOfHousing = new_ad_type_of_housing.selectedItem.toString(),
-            numberOfRoom = new_ad_number_of_room.selectedItem.toString(),
-            typeAd = new_ad_type_ad.selectedItem.toString(),
-            price = new_ad_price_input.text.toString().toLong()
-        )
+
+        if (!checkFields()) {
+            Toast.makeText(context, R.string.check_fields, Toast.LENGTH_LONG).show()
+            viewModel.updatePostState(PostState.NOTHING)
+            return
+        }
+
+        val post = createPost()
         ref.setValue(post)
             .addOnSuccessListener {
-                Log.d(TAG, "post upload successfully")
-                imagesUris.forEach { uri ->
+                Log.d(TAG, "post uploaded successfully")
+                if (viewModel.imagesUris.value.isNullOrEmpty()) viewModel.updatePostState(PostState.DONE)
+
+                viewModel.imagesUris.value?.forEach { uri ->
                     Log.d(TAG, uri.toString())
                     firebase.storageImage(key, uri.key.lastPathSegment).putFile(uri.key)
                         .addOnSuccessListener {
@@ -154,15 +188,38 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
                         }
                         .addOnFailureListener {
                             errorMessage(it, TAG)
-                            progress_bar.hideView()
+                            viewModel.updatePostState(PostState.ERROR)
                         }
                 }
             }
             .addOnFailureListener {
                 errorMessage(it, TAG)
-                progress_bar.hideView()
+                viewModel.updatePostState(PostState.ERROR)
             }
+
     }
+
+    private fun createPost(): Post {
+        return Post(
+            shortDescription = new_ad_short_description_input.text.toString(),
+            fullDescription = new_ad_full_description_input.text.toString(),
+            typeOfHousing = new_ad_type_of_housing.selectedItem.toString(),
+            numberOfRoom = new_ad_number_of_room.selectedItem.toString(),
+            typeAd = new_ad_type_ad.selectedItem.toString(),
+            price = new_ad_price_input.text.toString().toLong()
+        )
+    }
+
+    private fun checkFields(): Boolean =
+        when {
+            new_ad_short_description_input.text.isNullOrBlank() -> false
+            new_ad_full_description_input.text.isNullOrBlank() -> false
+            new_ad_type_of_housing.selectedItem.toString().isBlank() -> false
+            new_ad_number_of_room.selectedItem.toString().isBlank() -> false
+            new_ad_type_ad.selectedItem.toString().isBlank() -> false
+            new_ad_price_input.text.isNullOrBlank() -> false
+            else -> true
+        }
 
 
     private fun downloadImage(uri: Uri, key: String) {
@@ -173,7 +230,7 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
             }
             .addOnFailureListener {
                 errorMessage(it, TAG)
-                progress_bar.hideView()
+                viewModel.updatePostState(PostState.ERROR)
             }
     }
 
@@ -181,16 +238,23 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
         firebase.databaseImage(key).push().setValue(imageUrl)
             .addOnSuccessListener {
                 Log.d(TAG, "complete")
-                imagesUris[uri] = true
-                if (imagesUris.all { it.value }) {
-                    progress_bar.hideView()
-                    activity?.onBackPressed()
-                }
+                viewModel.updateImagesUris(uri, true)
             }
             .addOnFailureListener {
                 errorMessage(it, TAG)
-                progress_bar.hideView()
+                viewModel.updatePostState(PostState.ERROR)
             }
     }
 
+    private fun postUploadedSuccessfully() {
+        progress_bar_fab.showView {
+            progress_bar.hideView()
+            activity?.onBackPressed()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.clear()
+    }
 }

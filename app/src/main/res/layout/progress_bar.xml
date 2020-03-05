@@ -2,10 +2,11 @@
 
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/progress_bar"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:alpha="0.0"
+    android:alpha="0"
     android:animateLayoutChanges="true"
     android:background="@color/colorProgressBar">
 
@@ -13,5 +14,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/progress_bar_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:layout_gravity="center"
+        android:alpha="0"
+        android:backgroundTint="@color/colorPrimary"
+        android:src="@drawable/ic_done"
+        app:borderWidth="0dp" />
 
 </FrameLayout>

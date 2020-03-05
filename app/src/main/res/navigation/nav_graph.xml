@@ -34,6 +34,9 @@
         <action
             android:id="@+id/action_main_to_newAd"
             app:destination="@id/new_ad_fragment" />
+        <action
+            android:id="@+id/action_main_to_posts"
+            app:destination="@id/postsFragment" />
     </fragment>
     <fragment
         android:id="@+id/about_fragment"
@@ -59,5 +62,25 @@
         android:id="@+id/new_ad_fragment"
         android:name="com.example.cian.screens.newAd.NewAdFragment"
         android:label="New Ad"
-        tools:layout="@layout/fragment_new_ad" />
+        tools:layout="@layout/fragment_new_ad" >
+        <action
+            android:id="@+id/action_new_ad_to_post_detail"
+            app:destination="@id/post_detail_fragment"
+            app:popUpTo="@id/new_ad_fragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/post_detail_fragment"
+        android:name="com.example.cian.screens.detail.PostDetailFragment"
+        android:label="Detail"
+        tools:layout="@layout/fragment_post_detail" >
+        <argument
+            android:name="postId"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/postsFragment"
+        android:name="com.example.cian.screens.posts.PostsFragment"
+        android:label="Posts"
+        tools:layout="@layout/fragment_posts" />
 </navigation>
