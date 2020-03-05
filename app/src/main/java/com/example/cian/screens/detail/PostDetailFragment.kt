@@ -27,15 +27,25 @@ class PostDetailFragment : Fragment(R.layout.fragment_post_detail) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+
         firebase.databasePost(args.postId)
-            .addListenerForSingleValueEvent(ValueEventListenerAdapter {
-                val post = it.getValue(Post::class.java)
+            .addListenerForSingleValueEvent(ValueEventListenerAdapter { data ->
+                val post = data.getValue(Post::class.java)
                 if (post != null) {
-                    post_detail_short_description_input.text = post.shortDescription
-                    post_detail_full_description_input.text = post.fullDescription
-                    post_detail_price_input.text = post.price.toString()
+                    post_detail_short_description_text.text = post.shortDescription
+                    post_detail_full_description_text.text = post.fullDescription
+                    post_detail_price_text.text = post.price.toString()
+
+                    if (post.images != null) {
+                        val adapter =
+                            ViewPagerAdapter(requireContext(), post.images.map { it.value })
+                        post_detail_view_pager.adapter = adapter
+                    }
                 }
             })
+
+
     }
 
 }
