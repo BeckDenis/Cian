@@ -59,21 +59,15 @@ class MainActivity : AppCompatActivity() {
             .setupWithNavController(navController)
 
         nav_view.getHeaderView(0).findViewById<TextView>(R.id.header_account_text)
-            .setOnClickListener {
-                launchSignInFlow()
-            }
-
+            .setOnClickListener { launchSignInFlow() }
     }
 
     private fun launchSignInFlow() {
-        // Give users the option to sign in / register with their email or Google account.
-        // If users choose to register with their email,
-        // they will need to create a password as well.
         val providers = arrayListOf(
             AuthUI.IdpConfig.EmailBuilder().build(),
             AuthUI.IdpConfig.GoogleBuilder().build()
         )
-        
+
         startActivityForResult(
             AuthUI.getInstance()
                 .createSignInIntentBuilder()

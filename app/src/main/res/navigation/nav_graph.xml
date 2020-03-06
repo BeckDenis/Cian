@@ -11,32 +11,26 @@
         android:label=" "
         tools:layout="@layout/fragment_main">
         <action
-            android:id="@+id/action_mainFragment_to_about_fragment"
+            android:id="@+id/action_main_to_about"
             app:destination="@id/about_fragment" />
         <action
-            android:id="@+id/action_mainFragment_to_about_fragment2"
-            app:destination="@id/about_fragment" />
-        <action
-            android:id="@+id/action_mainFragment_to_about_fragment3"
-            app:destination="@id/about_fragment" />
-        <action
-            android:id="@+id/action_mainFragment_to_saved_fragment"
+            android:id="@+id/action_main_to_saved"
             app:destination="@id/saved_fragment" />
         <action
-            android:id="@+id/action_mainFragment_to_messages_fragment"
+            android:id="@+id/action_main_to_messages"
             app:destination="@id/messages_fragment" />
         <action
-            android:id="@+id/action_mainFragment_to_messages_fragment2"
-            app:destination="@id/messages_fragment" />
-        <action
-            android:id="@+id/action_mainFragment_to_help_fragment"
+            android:id="@+id/action_main_to_help"
             app:destination="@id/help_fragment" />
         <action
             android:id="@+id/action_main_to_newAd"
             app:destination="@id/new_ad_fragment" />
         <action
             android:id="@+id/action_main_to_posts"
-            app:destination="@id/postsFragment" />
+            app:destination="@id/posts_fragment" />
+        <action
+            android:id="@+id/action_main_to_login_dialog"
+            app:destination="@id/login_dialog" />
     </fragment>
     <fragment
         android:id="@+id/about_fragment"
@@ -79,8 +73,11 @@
             app:argType="string" />
     </fragment>
     <fragment
-        android:id="@+id/postsFragment"
+        android:id="@+id/posts_fragment"
         android:name="com.example.cian.screens.posts.PostsFragment"
         android:label="Posts"
         tools:layout="@layout/fragment_posts" />
+    <dialog
+        android:id="@+id/login_dialog"
+        android:name="com.example.cian.screens.main.LoginDialog"/>
 </navigation>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/login_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="@string/login_dialog_title"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/login_cancel_button"
+            style="@style/OutlinedButton"
+            android:layout_width="wrap_content"
+            android:text="@string/cancel"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"/>
+
+        <Button
+            android:id="@+id/login_ok_button"
+            style="@style/Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ok"
+            android:layout_marginEnd="10dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>

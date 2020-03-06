@@ -25,6 +25,9 @@
     <string name="the_number_of_rooms">the number of rooms</string>
     <string name="main">Main</string>
     <string name="my_account">My account</string>
+    <string name="login_dialog_title">To place an ad you need to log in to your account</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
     <string-array name="type_of_housing">
         <item>House</item>
         <item>Apartment</item>
