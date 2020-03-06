@@ -23,6 +23,8 @@
     <string name="type_ad">Type ad</string>
     <string name="housing_type">housing type</string>
     <string name="the_number_of_rooms">the number of rooms</string>
+    <string name="main">Main</string>
+    <string name="my_account">My account</string>
     <string-array name="type_of_housing">
         <item>House</item>
         <item>Apartment</item>
