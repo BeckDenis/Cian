@@ -12,18 +12,21 @@ import androidx.viewpager.widget.PagerAdapter
 import com.example.cian.R
 import com.example.cian.utils.GlideApp
 
-class ViewPagerAdapter(val context: Context, private val images: List<String>, val onClickListener: () -> Unit): PagerAdapter() {
+class ViewPagerAdapter(
+    val context: Context, private val images: List<String>?, val onClickListener: () -> Unit
+) : PagerAdapter() {
 
-    override fun isViewFromObject(view: View, `object`: Any): Boolean {
-        return view == `object`
-    }
+    override fun isViewFromObject(view: View, `object`: Any) = view == `object`
 
-    override fun getCount(): Int = images.size
+    override fun getCount(): Int = if (images.isNullOrEmpty()) 1 else images.size
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val imageView = ImageView(context)
         imageView.scaleType = ImageView.ScaleType.CENTER_CROP
-        GlideApp.with(context).load(images[position]).fallback(R.drawable.place_holder).into(imageView)
+        val image: Any? = if (images.isNullOrEmpty()) {
+            context.getDrawable(R.drawable.place_holder)
+        } else images[position]
+        GlideApp.with(context).load(image).fallback(R.drawable.place_holder).into(imageView)
         container.addView(imageView, 0)
         imageView.setOnClickListener { onClickListener() }
         return imageView

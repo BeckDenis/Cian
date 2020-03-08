@@ -28,8 +28,13 @@ class NewAdViewModel : ViewModel() {
         _postState.value = state
     }
 
-    fun updateImagesUris(uri: Uri, value: Boolean) {
-        _imagesUris.value?.set(uri, value)
+    fun updateImagesUris(key: Uri, value: Boolean) {
+        _imagesUris.value?.set(key, value)
+        _imagesUris.notifyObserver()
+    }
+
+    fun deleteImageUri(key: Uri) {
+        _imagesUris.value?.remove(key)
         _imagesUris.notifyObserver()
     }
 

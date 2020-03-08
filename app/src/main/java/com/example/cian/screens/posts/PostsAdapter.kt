@@ -34,25 +34,18 @@ class PostsAdapter(private val posts: List<Post>, val onClickListener: (String) 
         holder.view.run {
             item_post_description.text = post.shortDescription
             item_post_price.text = post.price.toString()
-            if (images != null) {
-                val viewPagerAdapter =
-                    ViewPagerAdapter(context, images) { onClickListener(post.id) }
-                item_post_viewpager.run {
-                    adapter = viewPagerAdapter
-                    addOnPageChangeListener(OnPageChangeListenerAdapter { position ->
-                        holder.view.item_post_images_count.text =
-                            resources.getString(R.string.images_count, (position + 1), images.size)
-                    })
-                }
+            val viewPagerAdapter = ViewPagerAdapter(context, images) { onClickListener(post.id) }
+            item_post_viewpager.adapter = viewPagerAdapter
+
+            if (images.isNullOrEmpty()) item_post_images_count.visibility = View.GONE else {
                 item_post_images_count.run {
                     visibility = View.VISIBLE
                     text = resources.getString(R.string.images_count, 1, images.size)
                 }
-            } else {
-                val viewPagerAdapter =
-                    ViewPagerAdapter(context, emptyList()) { onClickListener(post.id) }
-                item_post_viewpager.adapter = viewPagerAdapter
-                item_post_images_count.visibility = View.GONE
+                item_post_viewpager.addOnPageChangeListener(OnPageChangeListenerAdapter { position ->
+                    holder.view.item_post_images_count.text =
+                        resources.getString(R.string.images_count, (position + 1), images.size)
+                })
             }
             setOnClickListener { onClickListener(post.id) }
         }

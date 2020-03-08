@@ -30,6 +30,7 @@
     <string name="cancel">Cancel</string>
     <string name="my_posts">My posts</string>
     <string name="images_count">%d/%d</string>
+    <string name="close_button">Close button</string>
     <string-array name="type_of_housing">
         <item>House</item>
         <item>Apartment</item>

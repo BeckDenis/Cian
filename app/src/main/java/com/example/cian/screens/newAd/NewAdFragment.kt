@@ -59,7 +59,6 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
         setHasOptionsMenu(true)
 
         updateFields()
-
         adaptersSetup()
 
         viewModel.imagesUris.observe(viewLifecycleOwner, Observer { updateRecycler(it) })
@@ -85,7 +84,9 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
         if (!imagesUris.isNullOrEmpty() && imagesUris.all { it.value })
             viewModel.updatePostState(PostState.DONE)
 
-        new_ad_recycler.adapter = NewAdAdapter(imagesUris.map { it.key })
+        new_ad_recycler.adapter = NewAdAdapter(imagesUris.map { it.key }) {
+            viewModel.deleteImageUri(it)
+        }
     }
 
     private fun takePicture() {
@@ -167,9 +168,9 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
             databaseReference.setValue(post)
                 .addOnSuccessListener {
                     Log.d(TAG, "post uploaded successfully")
-                    if (viewModel.imagesUris.value.isNullOrEmpty()) viewModel.updatePostState(
-                        PostState.DONE
-                    )
+                    if (viewModel.imagesUris.value.isNullOrEmpty()) {
+                        viewModel.updatePostState(PostState.DONE)
+                    }
 
                     viewModel.imagesUris.value?.forEach { uri ->
                         Log.d(TAG, uri.toString())
@@ -245,9 +246,7 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
     private fun postUploadedSuccessfully() {
         progress_bar_fab.showView {
             progress_bar.hideView()
-            findNavController().navigate(
-                NewAdFragmentDirections.actionNewAdToPostDetail(postId)
-            )
+            findNavController().navigate(NewAdFragmentDirections.actionNewAdToPostDetail(postId))
             viewModel.clear()
         }
     }
@@ -264,9 +263,7 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
 
     private fun createAdapter(spinner: Spinner, array: Int) {
         ArrayAdapter.createFromResource(
-            requireContext(),
-            array,
-            android.R.layout.simple_spinner_item
+            requireContext(), array, android.R.layout.simple_spinner_item
         ).also { adapter ->
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             spinner.adapter = adapter

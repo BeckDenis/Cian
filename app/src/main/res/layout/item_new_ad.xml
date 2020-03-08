@@ -14,4 +14,14 @@
         tools:src="@drawable/place_holder"
         android:layout_height="match_parent" />
 
+    <ImageView
+        android:id="@+id/item_new_ad_close_image"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_margin="6dp"
+        android:background="@drawable/count_images_bg"
+        android:src="@drawable/ic_close"
+        android:layout_gravity="end|top"
+        android:contentDescription="@string/close_button" />
+
 </androidx.cardview.widget.CardView>

@@ -30,12 +30,10 @@ class PostDetailFragment : Fragment(R.layout.fragment_post_detail) {
                     post_detail_short_description_text.text = post.shortDescription
                     post_detail_full_description_text.text = post.fullDescription
                     post_detail_price_text.text = post.price.toString()
+                    val adapter =
+                        ViewPagerAdapter(requireContext(), post.images?.map { it.value }) {}
+                    post_detail_view_pager.adapter = adapter
 
-                    if (post.images != null) {
-                        val adapter =
-                            ViewPagerAdapter(requireContext(), post.images.map { it.value }) {}
-                        post_detail_view_pager.adapter = adapter
-                    }
                 }
             })
     }

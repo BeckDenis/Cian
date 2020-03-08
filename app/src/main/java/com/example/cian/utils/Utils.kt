@@ -2,8 +2,11 @@ package com.example.cian.utils
 
 import android.app.Activity
 import android.content.Context
+import android.net.Uri
 import android.util.Log
+import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import java.lang.Exception
@@ -23,5 +26,16 @@ fun hideKeyboard(activity: Activity) {
         inputMethodManager.hideSoftInputFromWindow(
             currentFocusedView.windowToken, InputMethodManager.HIDE_NOT_ALWAYS
         )
+    }
+}
+
+fun ImageView.loadImage(image: Uri) =
+    ifNotDestroyed {
+        GlideApp.with(this).load(image).centerCrop().into(this)
+    }
+
+private fun View.ifNotDestroyed(block: () -> Unit) {
+    if (!(context as Activity).isDestroyed) {
+        block()
     }
 }

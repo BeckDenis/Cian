@@ -32,6 +32,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/colorText"
                     android:labelFor="@id/new_ad_short_description_input"
                     android:text="@string/short_description" />
 
@@ -74,6 +75,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/colorText"
                     android:labelFor="@id/new_ad_type_ad"
                     android:text="@string/choose_type_ad" />
 
@@ -96,6 +98,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/colorText"
                     android:labelFor="@id/new_ad_type_of_housing"
                     android:text="@string/choose_housing_type" />
 
@@ -118,6 +121,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/colorText"
                     android:labelFor="@id/new_ad_number_of_room"
                     android:text="@string/select_the_number_of_rooms" />
 
@@ -140,6 +144,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/colorText"
                     android:labelFor="@id/new_ad_price_input"
                     android:text="@string/price" />
 
@@ -163,6 +168,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/colorText"
                     android:labelFor="@id/new_ad_full_description_input"
                     android:text="@string/full_description" />
 
