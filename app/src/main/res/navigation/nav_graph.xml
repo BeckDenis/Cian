@@ -76,7 +76,16 @@
         android:id="@+id/posts_fragment"
         android:name="com.example.cian.screens.posts.PostsFragment"
         android:label="Posts"
-        tools:layout="@layout/fragment_posts" />
+        tools:layout="@layout/fragment_posts" >
+        <argument
+            android:name="postsId"
+            app:argType="string[]"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_posts_to_post_detail"
+            app:destination="@id/post_detail_fragment" />
+    </fragment>
     <dialog
         android:id="@+id/login_dialog"
         android:name="com.example.cian.screens.main.LoginDialog"/>

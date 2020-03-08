@@ -2,15 +2,13 @@ package com.example.cian.screens.detail
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.navigation.fragment.navArgs
-
 import com.example.cian.R
 import com.example.cian.models.Post
 import com.example.cian.utils.FirebaseHelper
 import com.example.cian.utils.ValueEventListenerAdapter
+import com.example.cian.utils.ViewPagerAdapter
 import kotlinx.android.synthetic.main.fragment_post_detail.*
 
 class PostDetailFragment : Fragment(R.layout.fragment_post_detail) {
@@ -21,15 +19,11 @@ class PostDetailFragment : Fragment(R.layout.fragment_post_detail) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         firebase = FirebaseHelper()
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-
-
-        firebase.databasePost(args.postId)
+        firebase.databasePost().child(args.postId)
             .addListenerForSingleValueEvent(ValueEventListenerAdapter { data ->
                 val post = data.getValue(Post::class.java)
                 if (post != null) {
@@ -39,13 +33,11 @@ class PostDetailFragment : Fragment(R.layout.fragment_post_detail) {
 
                     if (post.images != null) {
                         val adapter =
-                            ViewPagerAdapter(requireContext(), post.images.map { it.value })
+                            ViewPagerAdapter(requireContext(), post.images.map { it.value }) {}
                         post_detail_view_pager.adapter = adapter
                     }
                 }
             })
-
-
     }
 
 }

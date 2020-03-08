@@ -23,7 +23,7 @@ class NewAdAdapter(private val images: List<Uri>) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.view.new_ad_image.loadImage(images[position])
+        holder.view.item_new_ad_image.loadImage(images[position])
     }
 
     override fun getItemCount(): Int = images.size

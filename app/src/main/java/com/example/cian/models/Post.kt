@@ -8,7 +8,7 @@ data class Post(
     val fullDescription: String = "",
     val images: HashMap<String, String>? = null,
     val typeOfHousing: String = "",
-    val numberOfRoom: String? = null,
+    val numberOfRoom: String = "",
     val price: Long = 0L,
     val typeAd: String = ""
 )

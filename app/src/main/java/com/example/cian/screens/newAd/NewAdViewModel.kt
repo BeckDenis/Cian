@@ -8,19 +8,25 @@ import com.example.cian.models.PostState
 
 class NewAdViewModel : ViewModel() {
 
-    var postId = ""
+    private var _post = MutableLiveData<NewPost>()
+    val post: LiveData<NewPost>
+        get() = _post
 
     private var _postState = MutableLiveData(PostState.NOTHING)
     val postState: LiveData<PostState>
         get() = _postState
 
-    fun updatePostState(state: PostState) {
-        _postState.value = state
-    }
-
     private var _imagesUris = MutableLiveData(HashMap<Uri, Boolean>())
     val imagesUris: LiveData<HashMap<Uri, Boolean>>
         get() = _imagesUris
+
+    fun updatePost(post: NewPost) {
+        _post.value = post
+    }
+
+    fun updatePostState(state: PostState) {
+        _postState.value = state
+    }
 
     fun updateImagesUris(uri: Uri, value: Boolean) {
         _imagesUris.value?.set(uri, value)

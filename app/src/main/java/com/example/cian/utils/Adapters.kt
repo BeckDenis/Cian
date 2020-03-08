@@ -1,6 +1,7 @@
 package com.example.cian.utils
 
 import android.util.Log
+import androidx.viewpager.widget.ViewPager
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -36,6 +37,19 @@ class ChildEventListenerAdapter(val handler: (DataSnapshot) -> Unit) : ChildEven
     }
 
     override fun onChildRemoved(p0: DataSnapshot) {
+    }
+
+}
+
+class OnPageChangeListenerAdapter(val handler: (Int) -> Unit): ViewPager.OnPageChangeListener {
+    override fun onPageScrollStateChanged(state: Int) {
+    }
+
+    override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+    }
+
+    override fun onPageSelected(position: Int) {
+        handler(position)
     }
 
 }

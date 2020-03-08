@@ -3,21 +3,25 @@
     <item
         android:id="@id/main_fragment"
         android:icon="@drawable/ic_main"
-        android:title="@string/main"/>
+        android:title="@string/main" />
+    <item
+        android:id="@+id/posts_fragment"
+        android:icon="@drawable/ic_post"
+        android:title="@string/my_posts" />
     <item
         android:id="@id/saved_fragment"
         android:icon="@drawable/ic_saved"
-        android:title="@string/saved"/>
+        android:title="@string/saved" />
     <item
         android:id="@id/messages_fragment"
         android:icon="@drawable/ic_messages"
-        android:title="@string/messages"/>
+        android:title="@string/messages" />
     <item
         android:id="@id/help_fragment"
         android:icon="@drawable/ic_help"
-        android:title="@string/help"/>
+        android:title="@string/help" />
     <item
         android:id="@id/about_fragment"
         android:icon="@drawable/ic_about"
-        android:title="@string/about"/>
+        android:title="@string/about" />
 </menu>

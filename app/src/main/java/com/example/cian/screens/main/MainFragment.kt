@@ -25,7 +25,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
     }
 
     private fun goToNewAd() {
-        if (!firebase.checkAuth()) {
+        if (firebase.checkAuth()) {
             findNavController().navigate(MainFragmentDirections.actionMainToNewAd())
         } else {
             findNavController().navigate(MainFragmentDirections.actionMainToLoginDialog())

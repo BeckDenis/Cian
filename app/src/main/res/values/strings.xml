@@ -26,8 +26,10 @@
     <string name="main">Main</string>
     <string name="my_account">My account</string>
     <string name="login_dialog_title">To place an ad you need to log in to your account</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="my_posts">My posts</string>
+    <string name="images_count">%d/%d</string>
     <string-array name="type_of_housing">
         <item>House</item>
         <item>Apartment</item>

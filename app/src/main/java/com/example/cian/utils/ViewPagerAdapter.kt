@@ -1,16 +1,18 @@
-package com.example.cian.screens.detail
+package com.example.cian.utils
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.viewpager.widget.PagerAdapter
 import com.example.cian.R
 import com.example.cian.utils.GlideApp
 
-class ViewPagerAdapter(val context: Context, val images: List<String>): PagerAdapter() {
-
+class ViewPagerAdapter(val context: Context, private val images: List<String>, val onClickListener: () -> Unit): PagerAdapter() {
 
     override fun isViewFromObject(view: View, `object`: Any): Boolean {
         return view == `object`
@@ -23,6 +25,7 @@ class ViewPagerAdapter(val context: Context, val images: List<String>): PagerAda
         imageView.scaleType = ImageView.ScaleType.CENTER_CROP
         GlideApp.with(context).load(images[position]).fallback(R.drawable.place_holder).into(imageView)
         container.addView(imageView, 0)
+        imageView.setOnClickListener { onClickListener() }
         return imageView
     }
 

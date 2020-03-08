@@ -20,28 +20,10 @@
         android:drawableEnd="@drawable/ic_right_arrow"
         android:focusable="true"
         android:gravity="center_vertical"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
         android:text="@string/my_account"
         android:textColor="@color/colorPrimary"
         android:textSize="16sp"
         android:textStyle="bold" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="dsadsa" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="dsadsa" />
-    </LinearLayout>
-
-
 </LinearLayout>

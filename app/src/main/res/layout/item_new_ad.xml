@@ -9,7 +9,7 @@
     android:layout_margin="1dp">
 
     <com.example.cian.views.SquareImageView
-        android:id="@+id/new_ad_image"
+        android:id="@+id/item_new_ad_image"
         android:layout_width="match_parent"
         tools:src="@drawable/place_holder"
         android:layout_height="match_parent" />
