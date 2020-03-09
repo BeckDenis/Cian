@@ -31,6 +31,9 @@
     <string name="my_posts">My posts</string>
     <string name="images_count">%d/%d</string>
     <string name="close_button">Close button</string>
+    <string name="new_ad_title">New Ad</string>
+    <string name="edit_ad_title">Edit Ad</string>
+    <string name="edit">Edit</string>
     <string-array name="type_of_housing">
         <item>House</item>
         <item>Apartment</item>

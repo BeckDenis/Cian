@@ -1,4 +1,4 @@
-package com.example.cian.screens.newAd
+package com.example.cian.screens.addeditad
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
@@ -17,30 +17,36 @@ import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.example.cian.MainActivity
 import com.example.cian.R
 import com.example.cian.models.Post
 import com.example.cian.models.PostState
+import com.example.cian.screens.main.arrayItemId
 import com.example.cian.utils.*
+import com.google.firebase.database.DatabaseReference
 import kotlinx.android.synthetic.main.fragment_new_ad.*
 import kotlinx.android.synthetic.main.progress_bar.*
 
 const val REQUEST_GALLERY_PICTURE = 1
 
-class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSelectedListener {
+class AddEditAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSelectedListener {
 
     companion object {
-        val TAG = NewAdFragment::class.java.simpleName
+        val TAG = AddEditAdFragment::class.java.simpleName
     }
 
+    private var imagesUrisCount = 0
     private lateinit var firebase: FirebaseHelper
     private lateinit var currentUserUid: String
     private lateinit var postId: String
-    private val viewModel by activityViewModels<NewAdViewModel>()
+    private val viewModel by activityViewModels<AddEditViewModel>()
+    private val args by navArgs<AddEditAdFragmentArgs>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         firebase = FirebaseHelper()
+        if (args.postId != null) viewModel.clear()
     }
 
     override fun onStart() {
@@ -58,10 +64,19 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
 
-        updateFields()
+        if (args.postId != null) {
+            firebase.databasePost().child(args.postId!!)
+                .addListenerForSingleValueEvent(ValueEventListenerAdapter { dataPost ->
+                    val post = dataPost.getValue(Post::class.java)
+                    updateFields(post)
+                })
+        } else {
+            updateFields(viewModel.post.value)
+        }
+
         adaptersSetup()
 
-        viewModel.imagesUris.observe(viewLifecycleOwner, Observer { updateRecycler(it) })
+        viewModel.imagesUris.observe(viewLifecycleOwner, Observer { checkChangeImagesUrisNumber(it) })
         viewModel.postState.observe(viewLifecycleOwner, Observer { postStateActions(it) })
         new_ad_photo_text.setOnClickListener { takePicture() }
     }
@@ -79,14 +94,20 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
         }
     }
 
-    private fun updateRecycler(imagesUris: HashMap<Uri, Boolean>) {
-        Log.d(TAG, "imagesUris: $imagesUris")
+    private fun checkChangeImagesUrisNumber(imagesUris: HashMap<Uri, Boolean>) {
+        if (imagesUrisCount == imagesUris.size) {
+            checkUploadDone(imagesUris)
+        } else {
+            imagesUrisCount = imagesUris.size
+            new_ad_recycler.adapter = AddEditAdAdapter(imagesUris.map { it.key }) {
+                viewModel.deleteImageUri(it)
+            }
+        }
+    }
+
+    private fun checkUploadDone(imagesUris: HashMap<Uri, Boolean>) {
         if (!imagesUris.isNullOrEmpty() && imagesUris.all { it.value })
             viewModel.updatePostState(PostState.DONE)
-
-        new_ad_recycler.adapter = NewAdAdapter(imagesUris.map { it.key }) {
-            viewModel.deleteImageUri(it)
-        }
     }
 
     private fun takePicture() {
@@ -161,32 +182,37 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
 
         val databaseReference = firebase.databasePost().push()
 
-        if (checkFields() && databaseReference.key != null) {
-            postId = databaseReference.key!!
-            firebase.databaseUserPost(currentUserUid).push().setValue(postId)
-            val post = createPost()
-            databaseReference.setValue(post)
-                .addOnSuccessListener {
-                    Log.d(TAG, "post uploaded successfully")
-                    if (viewModel.imagesUris.value.isNullOrEmpty()) {
-                        viewModel.updatePostState(PostState.DONE)
-                    }
-
-                    viewModel.imagesUris.value?.forEach { uri ->
-                        Log.d(TAG, uri.toString())
-                        if (uri.key.lastPathSegment != null) uploadImage(uri) {
-                            updateDatabase(it, uri.key)
-                        }
-                    }
-                }
-                .addOnFailureListener {
-                    errorMessage(it, TAG)
-                    viewModel.updatePostState(PostState.ERROR)
-                }
-        } else {
-            Toast.makeText(context, R.string.check_fields, Toast.LENGTH_LONG).show()
-            viewModel.updatePostState(PostState.NOTHING)
+        when {
+            !checkFields() -> {
+                Toast.makeText(context, R.string.check_fields, Toast.LENGTH_LONG).show()
+                viewModel.updatePostState(PostState.NOTHING)
+            }
+            databaseReference.key != null -> uploadPostInDatabase(databaseReference)
         }
+    }
+
+    private fun uploadPostInDatabase(databaseReference: DatabaseReference) {
+        postId = databaseReference.key!!
+        firebase.databaseUserPost(currentUserUid).push().setValue(postId)
+        val post = createPost()
+        databaseReference.setValue(post)
+            .addOnSuccessListener {
+                Log.d(TAG, "post uploaded successfully")
+                if (viewModel.imagesUris.value.isNullOrEmpty()) {
+                    viewModel.updatePostState(PostState.DONE)
+                }
+
+                viewModel.imagesUris.value?.forEach { uri ->
+                    Log.d(TAG, uri.toString())
+                    if (uri.key.lastPathSegment != null) uploadImage(uri) {
+                        updateDatabaseImages(it, uri.key)
+                    }
+                }
+            }
+            .addOnFailureListener {
+                errorMessage(it, TAG)
+                viewModel.updatePostState(PostState.ERROR)
+            }
     }
 
     private fun createPost(): Post {
@@ -196,7 +222,7 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
             typeOfHousing = new_ad_type_of_housing.selectedItem.toString(),
             numberOfRoom = new_ad_number_of_room.selectedItem.toString(),
             typeAd = new_ad_type_ad.selectedItem.toString(),
-            price = new_ad_price_input.text.toString().toLong()
+            price = new_ad_price_input.text.toLongOrZero()
         )
     }
 
@@ -231,7 +257,7 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
         }
     }
 
-    private fun updateDatabase(imageUrl: String, uri: Uri) {
+    private fun updateDatabaseImages(imageUrl: String, uri: Uri) {
         firebase.databaseImage(postId).push().setValue(imageUrl)
             .addOnSuccessListener {
                 Log.d(TAG, "complete")
@@ -245,9 +271,9 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
 
     private fun postUploadedSuccessfully() {
         progress_bar_fab.showView {
-            progress_bar.hideView()
-            findNavController().navigate(NewAdFragmentDirections.actionNewAdToPostDetail(postId))
             viewModel.clear()
+            progress_bar.hideView()
+            findNavController().navigate(AddEditAdFragmentDirections.actionNewAdToPostDetail(postId))
         }
     }
 
@@ -270,32 +296,23 @@ class NewAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSele
         }
     }
 
-    private fun updateFields() {
-        val post = viewModel.post.value
+    private fun updateFields(post: Post?) {
         if (post != null) {
+            resources.getStringArray(R.array.type_ad).indexOf("Post")
             new_ad_short_description_input.setText(post.shortDescription)
             new_ad_full_description_input.setText(post.fullDescription)
-            new_ad_type_of_housing.setSelection(post.typeOfHousingId)
-            new_ad_number_of_room.setSelection(post.numberOfRoomId)
-            new_ad_type_ad.setSelection(post.typeAdId)
-            new_ad_price_input.setText(post.price)
+            new_ad_type_of_housing
+                .setSelection(arrayItemId(R.array.type_of_housing, post.typeOfHousing))
+            new_ad_number_of_room
+                .setSelection(arrayItemId(R.array.number_of_room, post.numberOfRoom))
+            new_ad_type_ad.setSelection(arrayItemId(R.array.type_ad, post.typeAd))
+            new_ad_price_input.setText(post.price.toStringOrBlank())
         }
-    }
-
-    private fun createNewPost(): NewPost {
-        return NewPost(
-            shortDescription = new_ad_short_description_input.text.toString(),
-            fullDescription = new_ad_full_description_input.text.toString(),
-            typeOfHousingId = new_ad_type_of_housing.selectedItemPosition,
-            numberOfRoomId = new_ad_number_of_room.selectedItemPosition,
-            typeAdId = new_ad_type_ad.selectedItemPosition,
-            price = new_ad_price_input.text.toString()
-        )
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        viewModel.updatePost(createNewPost())
+        viewModel.updatePost(createPost())
     }
 
 }

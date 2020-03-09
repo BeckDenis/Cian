@@ -1,15 +1,16 @@
-package com.example.cian.screens.newAd
+package com.example.cian.screens.addeditad
 
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.cian.models.Post
 import com.example.cian.models.PostState
 
-class NewAdViewModel : ViewModel() {
+class AddEditViewModel : ViewModel() {
 
-    private var _post = MutableLiveData<NewPost>()
-    val post: LiveData<NewPost>
+    private var _post = MutableLiveData<Post>()
+    val post: LiveData<Post>
         get() = _post
 
     private var _postState = MutableLiveData(PostState.NOTHING)
@@ -20,7 +21,7 @@ class NewAdViewModel : ViewModel() {
     val imagesUris: LiveData<HashMap<Uri, Boolean>>
         get() = _imagesUris
 
-    fun updatePost(post: NewPost) {
+    fun updatePost(post: Post) {
         _post.value = post
     }
 

@@ -1,4 +1,4 @@
-package com.example.cian.screens.newAd
+package com.example.cian.screens.addeditad
 
 import android.net.Uri
 import android.view.LayoutInflater
@@ -9,8 +9,8 @@ import com.example.cian.R
 import com.example.cian.utils.loadImage
 import kotlinx.android.synthetic.main.item_new_ad.view.*
 
-class NewAdAdapter(private val images: List<Uri>, val onClickListener: (Uri) -> Unit) :
-    RecyclerView.Adapter<NewAdAdapter.ViewHolder>() {
+class AddEditAdAdapter(private val images: List<Uri>, val onClickListener: (Uri) -> Unit) :
+    RecyclerView.Adapter<AddEditAdAdapter.ViewHolder>() {
 
     class ViewHolder(val view: View) : RecyclerView.ViewHolder(view)
 
