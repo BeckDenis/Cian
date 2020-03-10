@@ -18,7 +18,7 @@ const val SIGN_IN_REQUEST_CODE = 1010
 class LoginDialog : DialogFragment() {
 
     companion object {
-        val TAG = LoginDialog::class.java.simpleName
+        private val TAG = LoginDialog::class.java.simpleName
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

@@ -13,7 +13,6 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
-import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -33,7 +32,7 @@ const val REQUEST_GALLERY_PICTURE = 1
 class AddEditAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSelectedListener {
 
     companion object {
-        val TAG = AddEditAdFragment::class.java.simpleName
+        private val TAG = AddEditAdFragment::class.java.simpleName
     }
 
     private var imagesUrisCount = 0
@@ -184,7 +183,7 @@ class AddEditAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItem
 
         when {
             !checkFields() -> {
-                Toast.makeText(context, R.string.check_fields, Toast.LENGTH_LONG).show()
+                showToast(R.string.check_fields)
                 viewModel.updatePostState(PostState.NOTHING)
             }
             databaseReference.key != null -> uploadPostInDatabase(databaseReference)

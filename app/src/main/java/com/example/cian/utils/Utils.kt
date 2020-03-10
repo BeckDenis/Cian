@@ -35,11 +35,6 @@ fun ImageView.loadImage(image: Uri) =
         GlideApp.with(this).load(image).centerCrop().into(this)
     }
 
-fun ImageView.loadImage(image: String) =
-    ifNotDestroyed {
-        GlideApp.with(this).load(image).centerCrop().into(this)
-    }
-
 private fun View.ifNotDestroyed(block: () -> Unit) {
     if (!(context as Activity).isDestroyed) {
         block()
@@ -47,4 +42,9 @@ private fun View.ifNotDestroyed(block: () -> Unit) {
 }
 
 fun Editable.toLongOrZero() = if (this.toString() == "") 0L else this.toString().toLong()
+
 fun Long.toStringOrBlank() = if (this == 0L) "" else this.toString()
+
+fun Fragment.showToast(text: Int, duration: Int = Toast.LENGTH_SHORT) {
+    Toast.makeText(requireContext(), text, duration).show()
+}

@@ -2,6 +2,7 @@ package com.example.cian.screens.main
 
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -10,6 +11,10 @@ import com.example.cian.utils.FirebaseHelper
 import kotlinx.android.synthetic.main.fragment_main.*
 
 class MainFragment : Fragment(R.layout.fragment_main) {
+
+    companion object {
+        private val TAG = MainFragment::class.java.simpleName
+    }
 
     private lateinit var firebase: FirebaseHelper
 
@@ -20,7 +25,6 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         main_place_an_ad_button.setOnClickListener { goToNewAd() }
     }
 

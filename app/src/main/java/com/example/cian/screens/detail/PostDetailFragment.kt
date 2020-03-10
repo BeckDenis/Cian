@@ -19,7 +19,7 @@ import kotlinx.android.synthetic.main.fragment_post_detail.*
 class PostDetailFragment : Fragment(R.layout.fragment_post_detail) {
 
     companion object{
-        val TAG = PostDetailFragment::class.java.simpleName
+        private val TAG = PostDetailFragment::class.java.simpleName
     }
 
     private val args by navArgs<PostDetailFragmentArgs>()

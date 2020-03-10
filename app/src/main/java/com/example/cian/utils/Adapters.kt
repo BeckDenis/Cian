@@ -38,7 +38,6 @@ class ChildEventListenerAdapter(val handler: (DataSnapshot) -> Unit) : ChildEven
 
     override fun onChildRemoved(p0: DataSnapshot) {
     }
-
 }
 
 class OnPageChangeListenerAdapter(val handler: (Int) -> Unit): ViewPager.OnPageChangeListener {

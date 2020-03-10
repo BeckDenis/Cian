@@ -18,7 +18,7 @@ import kotlinx.android.synthetic.main.fragment_posts.*
 class PostsFragment : Fragment(R.layout.fragment_posts) {
 
     companion object{
-        val TAG = PostsFragment::class.java.simpleName
+        private val TAG = PostsFragment::class.java.simpleName
     }
 
     private lateinit var firebase: FirebaseHelper

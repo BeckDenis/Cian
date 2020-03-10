@@ -15,7 +15,7 @@ class PostsAdapter(private val posts: List<Post>, val onClickListener: (String) 
     RecyclerView.Adapter<PostsAdapter.ViewHolder>() {
 
     companion object {
-        val TAG = PostsAdapter::class.java.simpleName
+        private val TAG = PostsAdapter::class.java.simpleName
     }
 
     class ViewHolder(val view: View) : RecyclerView.ViewHolder(view)
