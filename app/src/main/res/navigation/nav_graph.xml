@@ -69,6 +69,11 @@
         <argument
             android:name="title"
             app:argType="string" />
+        <action
+            android:id="@+id/action_add_edit_ad_to_main"
+            app:destination="@id/main_fragment"
+            app:popUpTo="@id/add_edit_ad_fragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/post_detail_fragment"

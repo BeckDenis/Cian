@@ -6,12 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.cian.R
-import com.example.cian.models.Post
+import com.example.cian.models.Ad
 import com.example.cian.utils.OnPageChangeListenerAdapter
 import com.example.cian.utils.ViewPagerAdapter
 import kotlinx.android.synthetic.main.item_post.view.*
 
-class PostsAdapter(private val posts: List<Post>, val onClickListener: (String) -> Unit) :
+class PostsAdapter(private val posts: List<Ad>, val onClickListener: (String) -> Unit) :
     RecyclerView.Adapter<PostsAdapter.ViewHolder>() {
 
     companion object {
@@ -47,7 +47,7 @@ class PostsAdapter(private val posts: List<Post>, val onClickListener: (String) 
                         resources.getString(R.string.images_count, (position + 1), images.size)
                 })
             }
-            setOnClickListener { onClickListener(post.id) }
+            this.setOnClickListener { onClickListener(post.id) }
         }
     }
 

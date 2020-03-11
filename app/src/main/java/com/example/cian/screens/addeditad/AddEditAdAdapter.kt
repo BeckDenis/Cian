@@ -28,4 +28,5 @@ class AddEditAdAdapter(private val images: List<Uri>, val onClickListener: (Uri)
     }
 
     override fun getItemCount(): Int = images.size
+
 }

@@ -20,6 +20,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate: ")
         firebase = FirebaseHelper()
     }
 
@@ -38,5 +39,15 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             val action = MainFragmentDirections.actionMainToLoginDialog()
             findNavController().navigate(action)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Log.d(TAG, "onDestroyView: ")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "onDestroy: ")
     }
 }

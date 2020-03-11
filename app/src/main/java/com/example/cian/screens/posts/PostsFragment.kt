@@ -10,14 +10,14 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 
 import com.example.cian.R
-import com.example.cian.models.Post
+import com.example.cian.models.Ad
 import com.example.cian.utils.FirebaseHelper
 import com.example.cian.utils.ValueEventListenerAdapter
 import kotlinx.android.synthetic.main.fragment_posts.*
 
 class PostsFragment : Fragment(R.layout.fragment_posts) {
 
-    companion object{
+    companion object {
         private val TAG = PostsFragment::class.java.simpleName
     }
 
@@ -31,11 +31,10 @@ class PostsFragment : Fragment(R.layout.fragment_posts) {
         firebase = FirebaseHelper()
 
         if (savedInstanceState == null)
-
-        if (args.postsId != null && firebase.currentUser != null) {
-            postsId = args.postsId?.toList()
-            getPosts()
-        } else currentUserPostsId()
+            if (args.postsId != null && firebase.currentUser != null) {
+                postsId = args.postsId?.toList()
+                getPosts()
+            } else currentUserPostsId()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -47,11 +46,11 @@ class PostsFragment : Fragment(R.layout.fragment_posts) {
         })
     }
 
-    private fun updateRecycler(posts: MutableSet<Post>) {
+    private fun updateRecycler(posts: MutableSet<Ad>) {
         Log.d(TAG, "posts: $posts")
-        if (!posts.isNullOrEmpty()) {
-            posts_recycler.adapter = PostsAdapter(posts.toList()) {
-                findNavController().navigate(PostsFragmentDirections.actionPostsToPostDetail(it))
+        if (posts.isNotEmpty()) {
+            posts_recycler.adapter = PostsAdapter(posts.toList().reversed()) { postId ->
+                findNavController().navigate(PostsFragmentDirections.actionPostsToPostDetail(postId))
             }
             Log.d(TAG, "updateRecycler called")
         }
@@ -62,7 +61,7 @@ class PostsFragment : Fragment(R.layout.fragment_posts) {
         postsId!!.forEach { postId ->
             firebase.databasePost().child(postId)
                 .addListenerForSingleValueEvent(ValueEventListenerAdapter { postData ->
-                    val post = postData.getValue(Post::class.java)?.copy(id = postData.key!!)
+                    val post = postData.getValue(Ad::class.java)?.copy(id = postData.key!!)
                     if (post != null) {
                         viewModel.updatePosts(post)
                     }

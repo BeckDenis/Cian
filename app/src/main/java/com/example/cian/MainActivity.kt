@@ -5,7 +5,10 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.View
 import android.widget.TextView
+import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -18,6 +21,7 @@ import com.firebase.ui.auth.IdpResponse
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.view.*
 
 const val SIGN_IN_REQUEST_CODE = 1001
 
@@ -53,6 +57,8 @@ class MainActivity : AppCompatActivity() {
 
         nav_view.getHeaderView(0).findViewById<TextView>(R.id.header_account_text)
             .setOnClickListener { launchSignInFlow() }
+        nav_view.findViewById<View>(R.id.posts_fragment).setOnClickListener {  }
+
     }
 
     private fun launchSignInFlow() {

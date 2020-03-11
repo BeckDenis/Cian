@@ -2,7 +2,7 @@ package com.example.cian.models
 
 import android.net.Uri
 
-data class Post(
+data class Ad(
     val id: String = "",
     val shortDescription: String = "",
     val fullDescription: String = "",

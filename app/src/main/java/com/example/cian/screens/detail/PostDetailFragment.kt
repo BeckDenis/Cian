@@ -1,7 +1,6 @@
 package com.example.cian.screens.detail
 
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -10,7 +9,7 @@ import android.view.View
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.cian.R
-import com.example.cian.models.Post
+import com.example.cian.models.Ad
 import com.example.cian.utils.FirebaseHelper
 import com.example.cian.utils.ValueEventListenerAdapter
 import com.example.cian.utils.ViewPagerAdapter
@@ -42,7 +41,7 @@ class PostDetailFragment : Fragment(R.layout.fragment_post_detail) {
         super.onViewCreated(view, savedInstanceState)
         firebase.databasePost().child(args.postId)
             .addListenerForSingleValueEvent(ValueEventListenerAdapter { data ->
-                val post = data.getValue(Post::class.java)
+                val post = data.getValue(Ad::class.java)
                 if (post != null) {
                     post_detail_short_description_text.text = post.shortDescription
                     post_detail_full_description_text.text = post.fullDescription
