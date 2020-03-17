@@ -1,19 +1,19 @@
-package com.example.cian.screens.posts
+package com.example.cian.screens.ads
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.cian.models.Ad
 
-class PostsViewModel: ViewModel() {
+class AdsViewModel: ViewModel() {
 
-    private var _posts = MutableLiveData(mutableSetOf<Ad>())
-    val posts: LiveData<MutableSet<Ad>>
-        get() = _posts
+    private var _ads = MutableLiveData(mutableSetOf<Ad>())
+    val ads: LiveData<MutableSet<Ad>>
+        get() = _ads
 
     fun updatePosts(post: Ad) {
-        _posts.value?.add(post)
-        _posts.notifyObserver()
+        _ads.value?.add(post)
+        _ads.notifyObserver()
     }
 
     private fun <T> MutableLiveData<T>.notifyObserver() {

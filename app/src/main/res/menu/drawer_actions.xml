@@ -5,7 +5,7 @@
         android:icon="@drawable/ic_main"
         android:title="@string/main" />
     <item
-        android:id="@+id/posts_fragment"
+        android:id="@+id/ads_fragment"
         android:icon="@drawable/ic_post"
         android:title="@string/my_posts" />
     <item

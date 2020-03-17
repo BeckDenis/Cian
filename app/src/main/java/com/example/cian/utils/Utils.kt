@@ -30,7 +30,7 @@ fun hideKeyboard(activity: Activity) {
     }
 }
 
-fun ImageView.loadImage(image: Uri) =
+fun ImageView.loadImage(image: Any) =
     ifNotDestroyed {
         GlideApp.with(this).load(image).centerCrop().into(this)
     }

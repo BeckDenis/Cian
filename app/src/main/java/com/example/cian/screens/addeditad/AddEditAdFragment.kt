@@ -15,110 +15,217 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.cian.R
 import com.example.cian.models.Ad
-import com.example.cian.models.PostState
 import com.example.cian.screens.main.arrayItemId
 import com.example.cian.utils.*
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.GoogleMapOptions
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.firebase.database.DatabaseReference
-import kotlinx.android.synthetic.main.fragment_new_ad.*
+import kotlinx.android.synthetic.main.fragment_add_edit_ad.*
 import kotlinx.android.synthetic.main.progress_bar.*
-import java.lang.Exception
 
 const val REQUEST_GALLERY_PICTURE = 1
 
-class AddEditAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItemSelectedListener {
+class AddEditAdFragment : Fragment(R.layout.fragment_add_edit_ad), AdapterView.OnItemSelectedListener,
+    OnMapReadyCallback {
 
     companion object {
         private val TAG = AddEditAdFragment::class.java.simpleName
     }
 
-    private var imagesUrisCount = 0
     private lateinit var firebase: FirebaseHelper
     private lateinit var currentUserUid: String
-    private lateinit var postId: String
+    private lateinit var map: GoogleMap
+    private lateinit var adId: String
     private val viewModel by activityViewModels<AddEditViewModel>()
     private val args by navArgs<AddEditAdFragmentArgs>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         firebase = FirebaseHelper()
-        if (args.postId != null) viewModel.clearEditAd()
+        if (savedInstanceState == null) viewModel.clear()
         Log.d(TAG, "onCreate: ")
-        args.postId?.let { postId = it }
+        args.postId?.let { adId = it }
     }
 
     override fun onStart() {
         super.onStart()
-        firebase.auth.addAuthStateListener {auth ->
-            try {
-                if (auth.currentUser == null) navigateToMain()
-                auth.currentUser?.let {currentUserUid = it.uid}
-            } catch (e: Exception) {
-                Log.e(TAG, e.message ?: return@addAuthStateListener)
-            }
-
+        firebase.auth.addAuthStateListener { auth ->
+            if (auth.currentUser == null) navigateBack()
+            auth.currentUser?.let { currentUserUid = it.uid }
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
-
-        if (args.postId != null) {
-            if (savedInstanceState == null) {
-                firebase.databasePost().child(args.postId!!)
-                    .addListenerForSingleValueEvent(ValueEventListenerAdapter { dataPost ->
-                        val post = dataPost.getValue(Ad::class.java)
-                        updateFields(post)
-                    })
-            } else {
-                viewModel.editPost.value.let {
-                    updateFields(it!!)
-                }
-            }
-        } else {
-            updateFields(viewModel.newAd.value)
-        }
-
         adaptersSetup()
 
-        viewModel.imagesNewPost.observe(
-            viewLifecycleOwner,
-            Observer { checkChangeImagesUrisNumber(it) })
+
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+
+        if (savedInstanceState == null && ::adId.isInitialized && viewModel.ad.value == null) {
+            firebase.databaseAd().child(args.postId!!)
+                .addListenerForSingleValueEvent(ValueEventListenerAdapter { dataAd ->
+                    val ad = dataAd.getValue(Ad::class.java)
+                    viewModel.updateAd(ad)
+                    ad?.images?.forEach { viewModel.updateImages(it.value, ImageState.Done) }
+                })
+        }
+
+        viewModel.ad.observe(viewLifecycleOwner, Observer { ad -> ad?.let { updateFields(it) } })
+        viewModel.images.observe(viewLifecycleOwner, Observer { checkChangeImagesUrisNumber(it) })
         viewModel.adState.observe(viewLifecycleOwner, Observer { postStateActions(it) })
         new_ad_photo_text.setOnClickListener { takePicture() }
     }
 
-    private fun postStateActions(it: PostState?) {
-        when (it) {
-            PostState.NOTHING -> progress_bar.hideView()
-            PostState.LOADING -> {
-                sharePost()
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) =
+        inflater.inflate(R.menu.add, menu)
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+        when (item.itemId) {
+            R.id.menu_add -> {
+                hideKeyboard(requireActivity())
+                checkPostValue()
             }
-            PostState.ERROR -> progress_bar.hideView()
-            PostState.DONE -> postUploadedSuccessfully()
+            else -> false
+        }
+
+    private fun checkPostValue(): Boolean {
+        Log.d(TAG, "menu clicked")
+        when (viewModel.adState.value) {
+            AdState.NOTHING -> viewModel.updateAdState(
+                AdState.LOADING
+            )
+            AdState.ERROR -> viewModel.updateAdState(
+                AdState.LOADING
+            )
+            else -> return false
+        }
+        return true
+    }
+
+    private fun postStateActions(it: AdState?) {
+        when (it) {
+            AdState.NOTHING -> progress_bar.hideView()
+            AdState.LOADING -> checkAddOrEditAd()
+            AdState.ERROR -> progress_bar.hideView()
+            AdState.DONE -> postUploadedSuccessfully()
             else -> Log.e(TAG, "postState is null")
         }
     }
 
-    private fun checkChangeImagesUrisNumber(imagesUris: MutableMap<Uri, Boolean>) {
-        if (imagesUrisCount == imagesUris.size) {
-            checkUploadDone(imagesUris)
-        } else {
-            imagesUrisCount = imagesUris.size
-            new_ad_recycler.adapter = AddEditAdAdapter(imagesUris.map { it.key }) {
-                viewModel.deleteNewAdImage(it)
+    private fun checkAddOrEditAd() = if (::adId.isInitialized) editAd() else shareAd()
+
+    private fun shareAd() {
+        Log.d(TAG, "sharePost called")
+
+        progress_bar.showView {}
+
+        val databaseReference = firebase.databaseAd().push().apply {
+            this.key?.let { adId = it }
+        }
+
+        when {
+            areInputsBlank() -> {
+                showToast(R.string.check_fields)
+                viewModel.updateAdState(AdState.NOTHING)
+            }
+            (::adId.isInitialized) -> uploadAdInDatabase(databaseReference) {
+                Log.d(TAG, "post uploaded successfully")
+                if (viewModel.images.value.isNullOrEmpty()) viewModel.updateAdState(
+                    AdState.DONE
+                )
+
+                viewModel.images.value?.forEach { entry ->
+                    val image = entry.key as Uri
+                    Log.d(TAG, image.toString())
+                    uploadImageInStrorageAndDatabase(entry, image)
+                }
             }
         }
     }
 
-    private fun checkUploadDone(imagesUris: MutableMap<Uri, Boolean>) {
-        if (!imagesUris.isNullOrEmpty() && imagesUris.all { it.value })
-            viewModel.updateAdState(PostState.DONE)
+    private fun editAd() {
+        Log.d(TAG, "updateAd: called")
+
+        progress_bar.showView {}
+        firebase.updateAd(adId, createUpdateMap(createAd())) {
+            viewModel.images.value?.let { entry ->
+                if (entry.isNullOrEmpty() || entry.all { it.value == ImageState.Done }) {
+                    viewModel.updateAdState(AdState.DONE)
+                }
+            }
+
+            viewModel.images.value?.forEach { entry ->
+                Log.d(TAG, entry.value.toString())
+                when (entry.value) {
+                    ImageState.Delete -> {
+                        deleteImageFromStorageAndDatabase(entry.key as String)
+                    }
+                    ImageState.Upload -> {
+                        val image = entry.key as Uri
+                        uploadImageInStrorageAndDatabase(entry, image)
+                    }
+                    ImageState.Done -> {
+                    }
+                }
+            }
+
+        }
+    }
+
+    private fun deleteImageFromStorageAndDatabase(imageUrl: String) {
+        firebase.databaseImage(adId).child(imageUrl).removeValue()
+        firebase.storageImage(imageUrl).delete()
+    }
+
+    private fun uploadImageInStrorageAndDatabase(
+        entry: Map.Entry<Any, ImageState>,
+        image: Uri
+    ) {
+        uploadImage(entry) { imageUrl ->
+            updateDatabaseImages(imageUrl) {
+                Log.d(TAG, "complete")
+                viewModel.updateImages(image, ImageState.Done)
+            }
+        }
+    }
+
+    private fun createUpdateMap(ad: Ad) = mutableMapOf<String, Any?>().apply {
+        this["shortDescription"] = ad.shortDescription
+        this["fullDescription"] = ad.fullDescription
+        this["typeOfHousing"] = ad.typeOfHousing
+        this["numberOfRoom"] = ad.numberOfRoom
+        this["typeAd"] = ad.typeAd
+        this["price"] = ad.price
+    }
+
+    private fun checkChangeImagesUrisNumber(imagesUris: MutableMap<Any, ImageState>) {
+        if (viewModel.adState.value == AdState.LOADING) {
+            checkUploadDone(imagesUris)
+        } else {
+            new_ad_recycler.adapter =
+                AddEditAdAdapter(imagesUris.filter { it.value != ImageState.Delete }
+                    .map { it.key }) {
+                    when (viewModel.images.value?.get(it)) {
+                        ImageState.Upload -> viewModel.deleteImage(it)
+                        ImageState.Done -> viewModel.updateImages(it, ImageState.Delete)
+                        else -> Log.e(TAG, "images is null")
+                    }
+                }
+        }
+    }
+
+    private fun checkUploadDone(imagesUris: MutableMap<Any, ImageState>) {
+        if (!imagesUris.isNullOrEmpty() && imagesUris.all { it.value == ImageState.Done })
+            viewModel.updateAdState(AdState.DONE)
     }
 
     private fun takePicture() {
@@ -142,12 +249,12 @@ class AddEditAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItem
 
                 for (i in 0 until totalItemSelected) {
                     val image = images.getItemAt(i).uri
-                    viewModel.updateImagesNewAd(image, false)
+                    viewModel.updateImages(image, ImageState.Upload)
                 }
             } else {
                 if (data.data != null) {
                     val image = data.data!!
-                    viewModel.updateImagesNewAd(image, false)
+                    viewModel.updateImages(image, ImageState.Upload)
                 }
             }
         }
@@ -166,74 +273,18 @@ class AddEditAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItem
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) =
-        inflater.inflate(R.menu.add, menu)
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean =
-        when (item.itemId) {
-            R.id.menu_add -> {
-                firebase.auth.signOut()
-                true
-//                hideKeyboard(activity as MainActivity)
-//                checkPostValue()
-            }
-            else -> false
-        }
-
-    private fun checkPostValue(): Boolean {
-        Log.d(TAG, "menu clicked")
-        when (viewModel.adState.value) {
-            PostState.NOTHING -> viewModel.updateAdState(PostState.LOADING)
-            PostState.ERROR -> viewModel.updateAdState(PostState.LOADING)
-            else -> return false
-        }
-        return true
-    }
-
-    private fun sharePost() {
-        Log.d(TAG, "sharePost called")
-
-        progress_bar.showView {}
-
-        val databaseReference = firebase.databasePost().push()
-        databaseReference.key?.let { postId = it }
-
-        when {
-            areInputsBlank() -> {
-                showToast(R.string.check_fields)
-                viewModel.updateAdState(PostState.NOTHING)
-            }
-            (::postId.isInitialized) -> uploadPostInDatabase(databaseReference) {
-                Log.d(TAG, "post uploaded successfully")
-                if (viewModel.imagesNewPost.value.isNullOrEmpty()) {
-                    viewModel.updateAdState(PostState.DONE)
-                }
-
-                viewModel.imagesNewPost.value?.forEach { uri ->
-                    Log.d(TAG, uri.toString())
-                    if (uri.key.lastPathSegment != null) uploadImage(uri) { imageUrl ->
-                        updateDatabaseImages(imageUrl) {
-                            Log.d(TAG, "complete")
-                            viewModel.updateImagesNewAd(uri.key, true)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun uploadPostInDatabase(databaseReference: DatabaseReference, onSuccess: () -> Unit) {
-        firebase.databaseUserPost(currentUserUid).push().setValue(postId)
-        val post = createPost()
+    private fun uploadAdInDatabase(databaseReference: DatabaseReference, onSuccess: () -> Unit) {
+        firebase.databaseUserAd(currentUserUid).push().setValue(adId)
+        val post = createAd()
         databaseReference.setValue(post)
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener {
                 errorMessage(it, TAG)
-                viewModel.updateAdState(PostState.ERROR)
+                viewModel.updateAdState(AdState.ERROR)
             }
     }
 
-    private fun createPost(): Ad {
+    private fun createAd(): Ad {
         return Ad(
             shortDescription = new_ad_short_description_input.text.toString().trim(),
             fullDescription = new_ad_full_description_input.text.toString().trim(),
@@ -255,40 +306,46 @@ class AddEditAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItem
             else -> false
         }
 
-    private fun uploadImage(uri: Map.Entry<Uri, Boolean>, onSuccess: (String) -> Unit) {
-        val storageReference = firebase.storageImage(uri.key.lastPathSegment!!)
+    private fun uploadImage(entry: Map.Entry<Any, ImageState>, onSuccess: (String) -> Unit) {
+        val uri = entry.key as Uri
 
-        val uploadTask = storageReference.putFile(uri.key)
+        uri.lastPathSegment?.let {
+            val storageReference = firebase.storageImage(it)
 
-        uploadTask.continueWithTask { task ->
-            if (!task.isSuccessful) {
-                task.exception?.let {
-                    throw it
-                }
+            val uploadTask = storageReference.putFile(uri)
+
+            uploadTask.continueWithTask { task ->
+                if (!task.isSuccessful) task.exception?.let { exception -> throw exception }
+                storageReference.downloadUrl
+            }.addOnSuccessListener { storageImageUri ->
+                onSuccess(storageImageUri.toString())
+            }.addOnFailureListener { exception ->
+                errorMessage(exception, TAG)
+                viewModel.updateAdState(AdState.ERROR)
             }
-            storageReference.downloadUrl
-        }.addOnSuccessListener { storageImageUri ->
-            onSuccess(storageImageUri.toString())
-        }.addOnFailureListener {
-            errorMessage(it, TAG)
-            viewModel.updateAdState(PostState.ERROR)
         }
     }
 
     private fun updateDatabaseImages(imageUrl: String, onSuccess: () -> Unit) {
-        firebase.databaseImage(postId).push().setValue(imageUrl)
+        firebase.databaseImage(adId).push().setValue(imageUrl)
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener {
                 errorMessage(it, TAG)
-                viewModel.updateAdState(PostState.ERROR)
+                viewModel.updateAdState(AdState.ERROR)
             }
     }
 
     private fun postUploadedSuccessfully() {
         progress_bar_fab.showView {
-            viewModel.clearNewAd()
+            viewModel.clear()
             progress_bar.hideView()
-            findNavController().navigate(AddEditAdFragmentDirections.actionNewAdToPostDetail(postId))
+            if (args.title == getString(R.string.edit_ad_title)) navigateBack() else {
+                findNavController().navigate(
+                    AddEditAdFragmentDirections.actionNewAdToAdDetail(
+                        adId
+                    )
+                )
+            }
         }
     }
 
@@ -325,23 +382,25 @@ class AddEditAdFragment : Fragment(R.layout.fragment_new_ad), AdapterView.OnItem
         }
     }
 
-    private fun navigateToMain() {
-        val action = AddEditAdFragmentDirections.actionAddEditAdToMain()
-        findNavController().navigate(R.id.main_fragment)
+    private fun navigateBack() {
+        requireActivity().onBackPressed()
     }
 
     override fun onDestroyView() {
-        Log.d(TAG, "onDestroyView: ")
-        if (args.postId != null) {
-            viewModel.updateEditAd(createPost())
-        } else {
-            viewModel.updateNewAd(createPost())
-        }
         super.onDestroyView()
+        Log.d(TAG, "onDestroyView: ")
+        if (::adId.isInitialized && viewModel.ad.value == null) return
+        if (viewModel.adState.value != AdState.DONE) viewModel.updateAd(createAd())
     }
 
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy: ")
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        map = googleMap
+        val googleMapOption = GoogleMapOptions().liteMode(true)
+        map.mapType = googleMapOption.mapType
     }
 }

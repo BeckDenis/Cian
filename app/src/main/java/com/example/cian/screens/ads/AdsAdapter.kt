@@ -1,4 +1,4 @@
-package com.example.cian.screens.posts
+package com.example.cian.screens.ads
 
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,11 +11,11 @@ import com.example.cian.utils.OnPageChangeListenerAdapter
 import com.example.cian.utils.ViewPagerAdapter
 import kotlinx.android.synthetic.main.item_post.view.*
 
-class PostsAdapter(private val posts: List<Ad>, val onClickListener: (String) -> Unit) :
-    RecyclerView.Adapter<PostsAdapter.ViewHolder>() {
+class AdsAdapter(private val posts: List<Ad>, val onClickListener: (String) -> Unit) :
+    RecyclerView.Adapter<AdsAdapter.ViewHolder>() {
 
     companion object {
-        private val TAG = PostsAdapter::class.java.simpleName
+        private val TAG = AdsAdapter::class.java.simpleName
     }
 
     class ViewHolder(val view: View) : RecyclerView.ViewHolder(view)

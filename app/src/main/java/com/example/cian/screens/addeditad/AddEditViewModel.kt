@@ -1,75 +1,49 @@
 package com.example.cian.screens.addeditad
 
-import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.cian.models.Ad
-import com.example.cian.models.PostState
 
 class AddEditViewModel : ViewModel() {
 
-    private var _adState = MutableLiveData(PostState.NOTHING)
-    val adState: LiveData<PostState>
+    private var _adState = MutableLiveData(AdState.NOTHING)
+    val adState: LiveData<AdState>
         get() = _adState
 
-    fun updateAdState(state: PostState) {
+    fun updateAdState(state: AdState) {
         _adState.value = state
     }
 
 
-    //When a new ad is created
-    private var _newAd = MutableLiveData<Ad>()
-    val newAd: LiveData<Ad>
-        get() = _newAd
+    private var _ad = MutableLiveData<Ad>()
+    val ad: LiveData<Ad>
+        get() = _ad
 
-    private var _imagesNewAd = MutableLiveData(mutableMapOf<Uri, Boolean>())
-    val imagesNewPost: LiveData<MutableMap<Uri, Boolean>>
-        get() = _imagesNewAd
+    private var _images = MutableLiveData(mutableMapOf<Any, ImageState>())
+    val images: LiveData<MutableMap<Any, ImageState>>
+        get() = _images
 
-    fun updateNewAd(post: Ad) {
-        _newAd.value = post
+    fun updateAd(ad: Ad?) {
+        ad?.let { _ad.value = it }
     }
 
-    fun updateImagesNewAd(key: Uri, value: Boolean) {
-        _imagesNewAd.value?.set(key, value)
-        _imagesNewAd.notifyObserver()
+    fun updateImages(key: Any?, value: ImageState) {
+        key?.let{
+            _images.value?.set(it, value)
+            _images.notifyObserver()
+        }
     }
 
-    fun deleteNewAdImage(key: Uri) {
-        _imagesNewAd.value?.remove(key)
-        _imagesNewAd.notifyObserver()
+    fun deleteImage(key: Any) {
+        _images.value?.remove(key)
+        _images.notifyObserver()
     }
 
-    fun clearNewAd() {
-        _newAd.value = null
-        _imagesNewAd.value = mutableMapOf()
-        _adState.value = PostState.NOTHING
-    }
-
-
-    //When an existing ad is edited
-    private var _editAd = MutableLiveData<Ad>()
-    val editPost: LiveData<Ad>
-        get() = _editAd
-
-    private var _imagesEditAd = MutableLiveData(mutableMapOf<Uri, Boolean>())
-    val imagesEditAd: LiveData<MutableMap<Uri, Boolean>>
-        get() = _imagesEditAd
-
-    fun updateEditAd(ad: Ad) {
-        _editAd.value = ad
-    }
-
-    fun deleteEditAdImage(key: Uri) {
-        _imagesEditAd.value?.remove(key)
-        _imagesEditAd.notifyObserver()
-    }
-
-    fun clearEditAd() {
-        _editAd.value = null
-        _imagesEditAd.value = mutableMapOf()
-        _adState.value = PostState.NOTHING
+    fun clear() {
+        _ad.value = null
+        _images.value = mutableMapOf()
+        _adState.value = AdState.NOTHING
     }
 
 

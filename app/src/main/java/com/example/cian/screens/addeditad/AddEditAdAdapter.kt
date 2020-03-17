@@ -9,7 +9,7 @@ import com.example.cian.R
 import com.example.cian.utils.loadImage
 import kotlinx.android.synthetic.main.item_new_ad.view.*
 
-class AddEditAdAdapter(private val images: List<Uri>, val onClickListener: (Uri) -> Unit) :
+class AddEditAdAdapter(private val images: List<Any>, val onClickListener: (Any) -> Unit) :
     RecyclerView.Adapter<AddEditAdAdapter.ViewHolder>() {
 
     class ViewHolder(val view: View) : RecyclerView.ViewHolder(view)
