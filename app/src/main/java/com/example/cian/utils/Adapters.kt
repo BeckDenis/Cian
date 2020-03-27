@@ -5,7 +5,6 @@ import androidx.viewpager.widget.ViewPager
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
 private const val VALUE_TAG = "ValueEventListenerAdapt"
@@ -22,7 +21,8 @@ class ValueEventListenerAdapter(val handler: (DataSnapshot) -> Unit) : ValueEven
 }
 
 class ChildEventListenerAdapter(val handler: (DataSnapshot) -> Unit) : ChildEventListener {
-    override fun onCancelled(p0: DatabaseError) {
+    override fun onCancelled(error: DatabaseError) {
+        Log.e(CHILD_TAG, "onCancelled: ", error.toException())
     }
 
     override fun onChildMoved(p0: DataSnapshot, p1: String?) {

@@ -3,10 +3,13 @@ package com.example.cian.screens.addeditad
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.cian.extesions.notifyObserver
 import com.example.cian.models.Ad
+import com.google.android.gms.maps.model.LatLng
 
 class AddEditViewModel : ViewModel() {
 
+    // Ad State
     private var _adState = MutableLiveData(AdState.NOTHING)
     val adState: LiveData<AdState>
         get() = _adState
@@ -15,18 +18,19 @@ class AddEditViewModel : ViewModel() {
         _adState.value = state
     }
 
-
-    private var _ad = MutableLiveData<Ad>()
+    // Ad
+    private var _ad = MutableLiveData(Ad())
     val ad: LiveData<Ad>
         get() = _ad
-
-    private var _images = MutableLiveData(mutableMapOf<Any, ImageState>())
-    val images: LiveData<MutableMap<Any, ImageState>>
-        get() = _images
 
     fun updateAd(ad: Ad?) {
         ad?.let { _ad.value = it }
     }
+
+    //Images
+    private var _images = MutableLiveData(mutableMapOf<Any, ImageState>())
+    val images: LiveData<MutableMap<Any, ImageState>>
+        get() = _images
 
     fun updateImages(key: Any?, value: ImageState) {
         key?.let{
@@ -40,15 +44,11 @@ class AddEditViewModel : ViewModel() {
         _images.notifyObserver()
     }
 
+    // Other
     fun clear() {
-        _ad.value = null
+        _ad.value = Ad()
         _images.value = mutableMapOf()
         _adState.value = AdState.NOTHING
-    }
-
-
-    private fun <T> MutableLiveData<T>.notifyObserver() {
-        this.value = this.value
     }
 
 }

@@ -1,7 +1,5 @@
 package com.example.cian.models
 
-import android.net.Uri
-
 data class Ad(
     val id: String = "",
     val shortDescription: String = "",
@@ -10,5 +8,6 @@ data class Ad(
     val typeOfHousing: String = "",
     val numberOfRoom: String = "",
     val price: Long = 0L,
-    val typeAd: String = ""
+    val typeAd: String = "",
+    val latLng: String = ""
 )

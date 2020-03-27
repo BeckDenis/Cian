@@ -1,12 +1,15 @@
-package com.example.cian.utils
+package com.example.cian.extesions
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.app.Activity
 import android.util.Log
 import android.view.View
+import android.widget.ImageView
+import com.example.cian.utils.GlideApp
 import kotlinx.android.synthetic.main.progress_bar.view.*
 
-const val TAG = "Anim"
+private const val TAG = "Anim"
 
 fun View.showView(animEnd: () -> Unit) {
     visibility = View.VISIBLE
@@ -59,4 +62,15 @@ fun View.hideView() {
 
     })
 
+}
+
+fun ImageView.loadImage(image: Any) =
+    ifNotDestroyed {
+        GlideApp.with(this).load(image).centerCrop().into(this)
+    }
+
+private fun View.ifNotDestroyed(block: () -> Unit) {
+    if (!(context as Activity).isDestroyed) {
+        block()
+    }
 }

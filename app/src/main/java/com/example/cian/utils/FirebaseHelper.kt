@@ -20,19 +20,17 @@ class FirebaseHelper {
 
     fun updateAd(adId: String, updates: Map<String, Any?>, onSuccess: () -> Unit) {
         database.child("ads/$adId").updateChildren(updates)
-            .addOnCompleteListener {
-                if (it.isSuccessful) {
-                    onSuccess()
-                } else {
-                    Log.e(TAG, it.exception?.message ?: return@addOnCompleteListener)
-                }
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener {
+                Log.e(TAG, it.message ?: return@addOnFailureListener)
             }
     }
 
     fun databaseImage(adId: String) = database.child("ads/$adId/images")
     fun databaseAd() = database.child("ads")
     fun databaseUserAd(userUid: String) = database.child("userAds/$userUid")
-    fun databaseAds() = database.child("ads/")
 
     fun checkAuth() = auth.currentUser != null
 }

@@ -51,12 +51,15 @@
             app:popUpTo="@id/add_edit_ad_fragment"
             app:popUpToInclusive="true" />
         <argument
-            android:name="postId"
+            android:name="adId"
             app:argType="string"
             app:nullable="true" />
         <argument
             android:name="title"
             app:argType="string" />
+        <action
+            android:id="@+id/action_add_edit_ad_to_map"
+            app:destination="@id/fragment_map" />
     </fragment>
     <fragment
         android:id="@+id/ad_detail_fragment"
@@ -64,7 +67,7 @@
         android:label="Detail"
         tools:layout="@layout/fragment_ad_detail" >
         <argument
-            android:name="postId"
+            android:name="adId"
             app:argType="string" />
         <action
             android:id="@+id/action_ad_detail_to_add_edit_ad"
@@ -96,4 +99,9 @@
             android:id="@+id/action_account_to_ad_detail"
             app:destination="@id/ad_detail_fragment" />
     </fragment>
+    <fragment
+        android:id="@+id/fragment_map"
+        android:name="com.example.cian.screens.addeditad.MapFragment"
+        android:label="Map"
+        tools:layout="@layout/fragment_map" />
 </navigation>

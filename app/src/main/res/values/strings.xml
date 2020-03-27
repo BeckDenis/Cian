@@ -35,6 +35,7 @@
     <string name="edit_ad_title">Edit Ad</string>
     <string name="edit">Edit</string>
     <string name="add_address">Add address</string>
+    <string name="map_default">Enter the address on the map</string>
     <string-array name="type_of_housing">
         <item>House</item>
         <item>Apartment</item>

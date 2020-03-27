@@ -1,12 +1,11 @@
 package com.example.cian.screens.addeditad
 
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.cian.R
-import com.example.cian.utils.loadImage
+import com.example.cian.extesions.loadImage
 import kotlinx.android.synthetic.main.item_new_ad.view.*
 
 class AddEditAdAdapter(private val images: List<Any>, val onClickListener: (Any) -> Unit) :

@@ -9,9 +9,6 @@ import android.view.ViewGroup
 
 import com.example.cian.R
 
-/**
- * A simple [Fragment] subclass.
- */
 class SavedFragment : Fragment() {
 
     override fun onCreateView(

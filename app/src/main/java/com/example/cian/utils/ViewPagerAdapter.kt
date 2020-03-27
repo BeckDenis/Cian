@@ -30,4 +30,5 @@ class ViewPagerAdapter(
     override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
         container.removeView(`object` as ImageView)
     }
+
 }

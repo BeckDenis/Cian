@@ -2,20 +2,14 @@ package com.example.cian.utils
 
 import android.app.Activity
 import android.content.Context
-import android.net.Uri
-import android.text.Editable
 import android.util.Log
-import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.ImageView
-import android.widget.Toast
-import androidx.fragment.app.Fragment
-import java.lang.Exception
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 
-fun Fragment.errorMessage(it: Exception, tag: String) {
-    Log.d(tag, it.message.toString())
-    Toast.makeText(requireContext(), it.localizedMessage, Toast.LENGTH_SHORT).show()
-}
+private const val TAG = "Utils"
 
 fun hideKeyboard(activity: Activity) {
     val inputMethodManager =
@@ -30,21 +24,12 @@ fun hideKeyboard(activity: Activity) {
     }
 }
 
-fun ImageView.loadImage(image: Any) =
-    ifNotDestroyed {
-        GlideApp.with(this).load(image).centerCrop().into(this)
+fun setAddress(map: GoogleMap, latLng: LatLng) {
+    Log.d(TAG, "setAddress: called")
+    val zoomLvl = 15f
+    map.run {
+        moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLvl))
+        addMarker(MarkerOptions().position(latLng)).showInfoWindow()
     }
 
-private fun View.ifNotDestroyed(block: () -> Unit) {
-    if (!(context as Activity).isDestroyed) {
-        block()
-    }
-}
-
-fun Editable.toLongOrZero() = if (this.toString() == "") 0L else this.toString().toLong()
-
-fun Long.toStringOrBlank() = if (this == 0L) "" else this.toString()
-
-fun Fragment.showToast(text: Int, duration: Int = Toast.LENGTH_SHORT) {
-    Toast.makeText(requireContext(), text, duration).show()
 }

@@ -18,30 +18,29 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.cian.R
+import com.example.cian.extesions.*
 import com.example.cian.models.Ad
-import com.example.cian.screens.main.arrayItemId
 import com.example.cian.utils.*
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.GoogleMapOptions
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.firebase.database.DatabaseReference
 import kotlinx.android.synthetic.main.fragment_add_edit_ad.*
 import kotlinx.android.synthetic.main.progress_bar.*
 
-const val REQUEST_GALLERY_PICTURE = 1
-
-class AddEditAdFragment : Fragment(R.layout.fragment_add_edit_ad), AdapterView.OnItemSelectedListener,
+class AddEditAdFragment : Fragment(R.layout.fragment_add_edit_ad),
+    AdapterView.OnItemSelectedListener,
     OnMapReadyCallback {
 
     companion object {
+        const val REQUEST_GALLERY_PICTURE = 1
         private val TAG = AddEditAdFragment::class.java.simpleName
     }
 
     private lateinit var firebase: FirebaseHelper
     private lateinit var currentUserUid: String
-    private lateinit var map: GoogleMap
     private lateinit var adId: String
+    private lateinit var map: GoogleMap
     private val viewModel by activityViewModels<AddEditViewModel>()
     private val args by navArgs<AddEditAdFragmentArgs>()
 
@@ -50,7 +49,7 @@ class AddEditAdFragment : Fragment(R.layout.fragment_add_edit_ad), AdapterView.O
         firebase = FirebaseHelper()
         if (savedInstanceState == null) viewModel.clear()
         Log.d(TAG, "onCreate: ")
-        args.postId?.let { adId = it }
+        args.adId?.let { adId = it }
     }
 
     override fun onStart() {
@@ -66,23 +65,33 @@ class AddEditAdFragment : Fragment(R.layout.fragment_add_edit_ad), AdapterView.O
         setHasOptionsMenu(true)
         adaptersSetup()
 
-
-        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
-
-        if (savedInstanceState == null && ::adId.isInitialized && viewModel.ad.value == null) {
-            firebase.databaseAd().child(args.postId!!)
-                .addListenerForSingleValueEvent(ValueEventListenerAdapter { dataAd ->
-                    val ad = dataAd.getValue(Ad::class.java)
-                    viewModel.updateAd(ad)
-                    ad?.images?.forEach { viewModel.updateImages(it.value, ImageState.Done) }
-                })
+        (childFragmentManager.findFragmentById(R.id.add_edit_ad_map) as SupportMapFragment).apply {
+            getMapAsync(this@AddEditAdFragment)
         }
 
-        viewModel.ad.observe(viewLifecycleOwner, Observer { ad -> ad?.let { updateFields(it) } })
-        viewModel.images.observe(viewLifecycleOwner, Observer { checkChangeImagesUrisNumber(it) })
-        viewModel.adState.observe(viewLifecycleOwner, Observer { postStateActions(it) })
-        new_ad_photo_text.setOnClickListener { takePicture() }
+        args.adId?.let { postId ->
+            if (viewModel.ad.value == Ad()) {
+                firebase.databaseAd().child(postId)
+                    .addListenerForSingleValueEvent(ValueEventListenerAdapter { dataAd ->
+                        val ad = dataAd.getValue(Ad::class.java)
+                        viewModel.updateAd(ad)
+                        ad?.images?.forEach { viewModel.updateImages(it.value, ImageState.DONE) }
+                    })
+            }
+        }
+
+        viewModel.run {
+            ad.observe(viewLifecycleOwner, Observer { it?.let { updateFields(it) } })
+            images.observe(viewLifecycleOwner, Observer { checkChangeImagesUrisNumber(it) })
+            adState.observe(viewLifecycleOwner, Observer { postStateActions(it) })
+        }
+        add_edit_ad_photo_text.setOnClickListener { takePicture() }
+        add_edit_ad_address_text_btn.setOnClickListener { openMapDialog() }
+    }
+
+    private fun openMapDialog() {
+        val action = AddEditAdFragmentDirections.actionAddEditAdToMap()
+        findNavController().navigate(action)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) =
@@ -121,7 +130,7 @@ class AddEditAdFragment : Fragment(R.layout.fragment_add_edit_ad), AdapterView.O
         }
     }
 
-    private fun checkAddOrEditAd() = if (::adId.isInitialized) editAd() else shareAd()
+    private fun checkAddOrEditAd() = if (args.adId != null) editAd() else shareAd()
 
     private fun shareAd() {
         Log.d(TAG, "sharePost called")
@@ -139,9 +148,7 @@ class AddEditAdFragment : Fragment(R.layout.fragment_add_edit_ad), AdapterView.O
             }
             (::adId.isInitialized) -> uploadAdInDatabase(databaseReference) {
                 Log.d(TAG, "post uploaded successfully")
-                if (viewModel.images.value.isNullOrEmpty()) viewModel.updateAdState(
-                    AdState.DONE
-                )
+                if (viewModel.images.value.isNullOrEmpty()) viewModel.updateAdState(AdState.DONE)
 
                 viewModel.images.value?.forEach { entry ->
                     val image = entry.key as Uri
@@ -158,7 +165,7 @@ class AddEditAdFragment : Fragment(R.layout.fragment_add_edit_ad), AdapterView.O
         progress_bar.showView {}
         firebase.updateAd(adId, createUpdateMap(createAd())) {
             viewModel.images.value?.let { entry ->
-                if (entry.isNullOrEmpty() || entry.all { it.value == ImageState.Done }) {
+                if (entry.isNullOrEmpty() || entry.all { it.value == ImageState.DONE }) {
                     viewModel.updateAdState(AdState.DONE)
                 }
             }
@@ -166,18 +173,17 @@ class AddEditAdFragment : Fragment(R.layout.fragment_add_edit_ad), AdapterView.O
             viewModel.images.value?.forEach { entry ->
                 Log.d(TAG, entry.value.toString())
                 when (entry.value) {
-                    ImageState.Delete -> {
+                    ImageState.DELETE -> {
                         deleteImageFromStorageAndDatabase(entry.key as String)
                     }
-                    ImageState.Upload -> {
+                    ImageState.UPLOAD -> {
                         val image = entry.key as Uri
                         uploadImageInStrorageAndDatabase(entry, image)
                     }
-                    ImageState.Done -> {
+                    ImageState.DONE -> {
                     }
                 }
             }
-
         }
     }
 
@@ -186,14 +192,11 @@ class AddEditAdFragment : Fragment(R.layout.fragment_add_edit_ad), AdapterView.O
         firebase.storageImage(imageUrl).delete()
     }
 
-    private fun uploadImageInStrorageAndDatabase(
-        entry: Map.Entry<Any, ImageState>,
-        image: Uri
-    ) {
+    private fun uploadImageInStrorageAndDatabase(entry: Map.Entry<Any, ImageState>, image: Uri) {
         uploadImage(entry) { imageUrl ->
             updateDatabaseImages(imageUrl) {
                 Log.d(TAG, "complete")
-                viewModel.updateImages(image, ImageState.Done)
+                viewModel.updateImages(image, ImageState.DONE)
             }
         }
     }
@@ -205,6 +208,7 @@ class AddEditAdFragment : Fragment(R.layout.fragment_add_edit_ad), AdapterView.O
         this["numberOfRoom"] = ad.numberOfRoom
         this["typeAd"] = ad.typeAd
         this["price"] = ad.price
+        this["latLng"] = ad.latLng
     }
 
     private fun checkChangeImagesUrisNumber(imagesUris: MutableMap<Any, ImageState>) {
@@ -212,11 +216,11 @@ class AddEditAdFragment : Fragment(R.layout.fragment_add_edit_ad), AdapterView.O
             checkUploadDone(imagesUris)
         } else {
             new_ad_recycler.adapter =
-                AddEditAdAdapter(imagesUris.filter { it.value != ImageState.Delete }
+                AddEditAdAdapter(imagesUris.filter { it.value != ImageState.DELETE }
                     .map { it.key }) {
                     when (viewModel.images.value?.get(it)) {
-                        ImageState.Upload -> viewModel.deleteImage(it)
-                        ImageState.Done -> viewModel.updateImages(it, ImageState.Delete)
+                        ImageState.UPLOAD -> viewModel.deleteImage(it)
+                        ImageState.DONE -> viewModel.updateImages(it, ImageState.DELETE)
                         else -> Log.e(TAG, "images is null")
                     }
                 }
@@ -224,7 +228,7 @@ class AddEditAdFragment : Fragment(R.layout.fragment_add_edit_ad), AdapterView.O
     }
 
     private fun checkUploadDone(imagesUris: MutableMap<Any, ImageState>) {
-        if (!imagesUris.isNullOrEmpty() && imagesUris.all { it.value == ImageState.Done })
+        if (!imagesUris.isNullOrEmpty() && imagesUris.all { it.value == ImageState.DONE })
             viewModel.updateAdState(AdState.DONE)
     }
 
@@ -249,12 +253,12 @@ class AddEditAdFragment : Fragment(R.layout.fragment_add_edit_ad), AdapterView.O
 
                 for (i in 0 until totalItemSelected) {
                     val image = images.getItemAt(i).uri
-                    viewModel.updateImages(image, ImageState.Upload)
+                    viewModel.updateImages(image, ImageState.UPLOAD)
                 }
             } else {
                 if (data.data != null) {
                     val image = data.data!!
-                    viewModel.updateImages(image, ImageState.Upload)
+                    viewModel.updateImages(image, ImageState.UPLOAD)
                 }
             }
         }
@@ -263,13 +267,13 @@ class AddEditAdFragment : Fragment(R.layout.fragment_add_edit_ad), AdapterView.O
     override fun onNothingSelected(parent: AdapterView<*>?) {}
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        if (new_ad_type_of_housing.selectedItemPosition == 2) {
-            new_ad_number_of_room.run {
+        if (add_edit_ad_type_of_housing.selectedItemPosition == 2) {
+            add_edit_ad_number_of_room.run {
                 setSelection(0)
                 isEnabled = false
             }
         } else {
-            new_ad_number_of_room.isEnabled = true
+            add_edit_ad_number_of_room.isEnabled = true
         }
     }
 
@@ -285,24 +289,25 @@ class AddEditAdFragment : Fragment(R.layout.fragment_add_edit_ad), AdapterView.O
     }
 
     private fun createAd(): Ad {
-        return Ad(
-            shortDescription = new_ad_short_description_input.text.toString().trim(),
-            fullDescription = new_ad_full_description_input.text.toString().trim(),
-            typeOfHousing = new_ad_type_of_housing.selectedItem.toString(),
-            numberOfRoom = new_ad_number_of_room.selectedItem.toString(),
-            typeAd = new_ad_type_ad.selectedItem.toString(),
-            price = new_ad_price_input.text.toLongOrZero()
+        return viewModel.ad.value!!.copy(
+            shortDescription = add_edit_ad_short_description_input.text.toString().trim(),
+            fullDescription = add_edit_ad_full_description_input.text.toString().trim(),
+            typeOfHousing = add_edit_ad_type_of_housing.selectedItem.toString(),
+            numberOfRoom = add_edit_ad_number_of_room.selectedItem.toString(),
+            typeAd = add_edit_ad_type_ad.selectedItem.toString(),
+            price = add_edit_ad_price_input.text.toLongOrZero()
         )
     }
 
     private fun areInputsBlank(): Boolean =
         when {
-            new_ad_short_description_input.text.isNullOrBlank() -> true
-            new_ad_full_description_input.text.isNullOrBlank() -> true
-            new_ad_type_of_housing.selectedItem.toString().isBlank() -> true
-            new_ad_number_of_room.selectedItem.toString().isBlank() -> true
-            new_ad_type_ad.selectedItem.toString().isBlank() -> true
-            new_ad_price_input.text.isNullOrBlank() -> true
+            add_edit_ad_short_description_input.text.isNullOrBlank() -> true
+            add_edit_ad_full_description_input.text.isNullOrBlank() -> true
+            add_edit_ad_type_of_housing.selectedItem.toString().isBlank() -> true
+            add_edit_ad_number_of_room.selectedItem.toString().isBlank() -> true
+            add_edit_ad_type_ad.selectedItem.toString().isBlank() -> true
+            add_edit_ad_price_input.text.isNullOrBlank() -> true
+            add_edit_ad_address_text.text == getString(R.string.map_default) -> true
             else -> false
         }
 
@@ -350,13 +355,13 @@ class AddEditAdFragment : Fragment(R.layout.fragment_add_edit_ad), AdapterView.O
     }
 
     private fun adaptersSetup() {
-        createAdapter(new_ad_type_of_housing, R.array.type_of_housing)
-        createAdapter(new_ad_number_of_room, R.array.number_of_room)
-        createAdapter(new_ad_type_ad, R.array.type_ad)
+        createAdapter(add_edit_ad_type_of_housing, R.array.type_of_housing)
+        createAdapter(add_edit_ad_number_of_room, R.array.number_of_room)
+        createAdapter(add_edit_ad_type_ad, R.array.type_ad)
 
-        new_ad_type_of_housing.onItemSelectedListener = this
-        new_ad_number_of_room.onItemSelectedListener = this
-        new_ad_type_ad.onItemSelectedListener = this
+        add_edit_ad_type_of_housing.onItemSelectedListener = this
+        add_edit_ad_number_of_room.onItemSelectedListener = this
+        add_edit_ad_type_ad.onItemSelectedListener = this
     }
 
     private fun createAdapter(spinner: Spinner, array: Int) {
@@ -368,17 +373,25 @@ class AddEditAdFragment : Fragment(R.layout.fragment_add_edit_ad), AdapterView.O
         }
     }
 
-    private fun updateFields(post: Ad?) {
-        if (post != null) {
-            resources.getStringArray(R.array.type_ad).indexOf("Post")
-            new_ad_short_description_input.setText(post.shortDescription)
-            new_ad_full_description_input.setText(post.fullDescription)
-            new_ad_type_of_housing
-                .setSelection(arrayItemId(R.array.type_of_housing, post.typeOfHousing))
-            new_ad_number_of_room
-                .setSelection(arrayItemId(R.array.number_of_room, post.numberOfRoom))
-            new_ad_type_ad.setSelection(arrayItemId(R.array.type_ad, post.typeAd))
-            new_ad_price_input.setText(post.price.toStringOrBlank())
+    private fun updateFields(ad: Ad?) {
+        Log.d(TAG, "updateFields: called")
+        if (ad != null) {
+            Log.d(TAG, "updateFields: ad is not null")
+            add_edit_ad_short_description_input.setText(ad.shortDescription)
+            add_edit_ad_full_description_input.setText(ad.fullDescription)
+            add_edit_ad_type_of_housing
+                .setSelection(arrayItemId(R.array.type_of_housing, ad.typeOfHousing))
+            add_edit_ad_number_of_room
+                .setSelection(arrayItemId(R.array.number_of_room, ad.numberOfRoom))
+            add_edit_ad_type_ad.setSelection(arrayItemId(R.array.type_ad, ad.typeAd))
+            add_edit_ad_price_input.setText(ad.price.toStringOrBlank())
+            add_edit_ad_address_text.text = if (ad.latLng.isBlank()) {
+                getString(R.string.map_default)
+            } else {
+                Log.d(TAG, "updateFields: ${ad.latLng}")
+                ad.latLng.toAddress(context)
+            }
+            if (::map.isInitialized) setAddress(map, ad.latLng.toLatLng())
         }
     }
 
@@ -388,8 +401,8 @@ class AddEditAdFragment : Fragment(R.layout.fragment_add_edit_ad), AdapterView.O
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Log.d(TAG, "onDestroyView: ")
-        if (::adId.isInitialized && viewModel.ad.value == null) return
+        Log.d(TAG, "onDestroyView: called")
+        if (args.adId != null && ::adId.isInitialized && viewModel.ad.value == null) return
         if (viewModel.adState.value != AdState.DONE) viewModel.updateAd(createAd())
     }
 
@@ -400,7 +413,6 @@ class AddEditAdFragment : Fragment(R.layout.fragment_add_edit_ad), AdapterView.O
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-        val googleMapOption = GoogleMapOptions().liteMode(true)
-        map.mapType = googleMapOption.mapType
     }
+
 }

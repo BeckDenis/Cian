@@ -4,8 +4,4 @@ import androidx.fragment.app.Fragment
 
 import com.example.cian.R
 
-class HelpFragment : Fragment(R.layout.fragment_help) {
-
-
-
-}
+class HelpFragment : Fragment(R.layout.fragment_help)
